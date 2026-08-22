@@ -1,11 +1,11 @@
 ---
 Nombre: Auditar secretos y cambiar repositorio origin
 Estado: Hecha
-Resumen: Supabase, el seed y la historia publicable están saneados; main contiene un único commit raíz noreply y origin apunta al nuevo repositorio público sin haber hecho push.
+Resumen: El repositorio está saneado y preparado para publicar main en el nuevo origin público con la versión 0.6.1; el enlace y la verificación de Vercel quedan a cargo del usuario cuando cree el proyecto.
 Decisiones: La clave JWT versionada es la clave anon pública de Supabase; producción aplica RLS y mínimos privilegios; el seed identifica al propietario mediante UUID reservados sin PII; el repositorio público partirá de un único commit raíz con identidad noreply y la historia privada se conservará solo como respaldo recuperable.
 Bloqueada: []
 Fecha de creación: 2026-08-22T21:15:36+02:00
-Última modificación: 2026-08-22T21:54:11+02:00
+Última modificación: 2026-08-22T22:01:00+02:00
 ---
 
 # Auditar secretos y cambiar repositorio origin
@@ -18,7 +18,7 @@ Comprobar que un push del historial y del estado versionado no expondría claves
 
 - Se revisan el árbol versionado actual, el historial completo alcanzable, los nombres de archivo sensibles y la configuración de Git.
 - Se distinguen secretos reales de identificadores públicos o valores de ejemplo.
-- No se realiza ningún push durante esta tarea.
+- El primer push solo se realiza tras completar el saneamiento y revisar explícitamente el contenido staged.
 - `origin` solo se cambia si la revisión no detecta exposición sensible que requiera limpieza previa.
 - El remoto final queda verificado mediante una consulta de solo lectura.
 
@@ -49,9 +49,10 @@ Publicar el `main` anterior habría expuesto el Gmail tanto en el seed como en l
 - `.gitignore` excluye archivos de entorno, metadatos locales de enlace de Supabase, claves privadas, certificados y almacenes de credenciales comunes.
 - Las 124 pruebas terminan correctamente y el build de producción finaliza con los avisos de presupuesto ya conocidos.
 
-## Publicación preparada
+## Primera publicación
 
 - La historia pública de `main` contiene un único commit raíz con identidad `319049409+danielperezmartinez@users.noreply.github.com` y no tiene relación de parentesco con los commits privados anteriores.
 - El historial privado previo se conserva en un bundle verificado fuera del repositorio y mediante el remoto `private-origin`; ninguna de esas referencias forma parte de `main`.
 - `origin` apunta a `git@github.com:danielperezmartinez/nocendland.git` y `main` queda configurada para seguir `origin/main` cuando exista.
-- No se realizó ningún push. Antes del primer push se deberá aplicar el incremento SemVer obligatorio del proyecto y volver a revisar el diff que vaya a publicarse.
+- La versión se incrementó de `0.6.0` a `0.6.1` antes del primer push, conforme a la regla SemVer del proyecto.
+- El usuario creará y enlazará posteriormente el proyecto de Vercel, por lo que en esta publicación no existe todavía un despliegue que pueda verificarse.
