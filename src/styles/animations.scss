@@ -1,0 +1,63 @@
+﻿// FADE IN
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// FADE IN LEFT
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-100%);
+  animation: fadeInLeft 0.2s forwards;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// EXPAND WIDTH
+.expand-width {
+  overflow: hidden;
+  width: 0;
+  white-space: nowrap;
+  animation: expandWidth 2s forwards;
+}
+
+@keyframes expandWidth {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+// AVISOS GLOBALES
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--space-6), var(--space-2), 0) scale(0.97);
+  }
+}
+
+@keyframes toast-timer {
+  to {
+    transform: scaleX(0);
+  }
+}

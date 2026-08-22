@@ -1,0 +1,30 @@
+<header class="atlas-header">
+  <button
+    class="ui-icon-button"
+    type="button"
+    aria-label="Abrir navegación"
+    aria-controls="primary-navigation"
+    [attr.aria-expanded]="sideNavService.isOpen()"
+    (click)="sideNavService.toggle()"
+  >
+    <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#menu"/></svg>
+  </button>
+
+  <button class="atlas-header__brand" type="button" aria-label="Ir al inicio" (click)="navigation.to('home')">
+    <span class="atlas-header__monogram" aria-hidden="true">N</span>
+    <span class="atlas-header__title">{{ headerService.title() }}</span>
+  </button>
+
+  <span class="atlas-header__route-line" aria-hidden="true"></span>
+
+  <button
+    class="ui-icon-button"
+    type="button"
+    [attr.aria-label]="theme.isDark() ? 'Activar tema claro' : 'Activar tema oscuro'"
+    (click)="theme.toggle()"
+  >
+    <svg class="ui-icon" aria-hidden="true">
+      <use [attr.href]="'icons/atlas-icons.svg#' + (theme.isDark() ? 'light_mode' : 'dark_mode')"/>
+    </svg>
+  </button>
+</header>

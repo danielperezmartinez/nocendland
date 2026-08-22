@@ -1,0 +1,7 @@
+<main class="content-frame">
+  <section class="content-frame__column">
+    @if (template(); as contentTemplate) {
+      <ng-container *ngTemplateOutlet="contentTemplate"/>
+    }
+  </section>
+</main>

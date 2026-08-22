@@ -1,0 +1,65 @@
+{
+  "name": "nocendland",
+  "version": "0.6.0",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": "24.x",
+    "pnpm": "10.33.2"
+  },
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "node scripts/check-style-tokens.mjs && node scripts/check-technical-catalog.mjs && ng build --configuration=production",
+    "check:styles": "node scripts/check-style-tokens.mjs",
+    "check:shared-ui": "node scripts/check-shared-ui.mjs",
+    "check:technical-catalog": "node scripts/check-technical-catalog.mjs",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "generate-types": "pnpm exec supabase gen types typescript --project-id hzwxzvupsctlyrqcdofi > ./src/app/platform/supabase/database.types.ts",
+    "security:audit": "pnpm audit --audit-level high",
+    "security:builds": "pnpm ignored-builds"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/cdk": "22.1.2",
+    "@angular/common": "22.1.2",
+    "@angular/compiler": "22.1.2",
+    "@angular/core": "22.1.2",
+    "@angular/forms": "22.1.2",
+    "@angular/platform-browser": "22.1.2",
+    "@angular/platform-browser-dynamic": "22.1.2",
+    "@angular/router": "22.1.2",
+    "@angular/service-worker": "22.1.2",
+    "@fontsource-variable/archivo": "5.3.0",
+    "@fontsource-variable/bricolage-grotesque": "5.3.0",
+    "@supabase/storage-js": "2.111.0",
+    "@supabase/supabase-js": "2.111.0",
+    "apexcharts": "5.16.0",
+    "ng-apexcharts": "2.4.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/schematics-cli": "22.1.4",
+    "@angular/build": "22.1.4",
+    "@angular/cli": "22.1.4",
+    "@angular/compiler-cli": "22.1.2",
+    "apexcharts-mcp": "0.4.0",
+    "jsdom": "30.0.1",
+    "supabase": "2.110.0",
+    "tailwindcss": "^3.4.13",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10",
+    "zone.js": "0.15.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "brace-expansion@2.0.1": "2.1.4",
+      "glob@10.4.5": "10.5.0",
+      "minimatch@9.0.5": "9.0.7",
+      "postcss@8.5.3": "8.5.23",
+      "postcss@8.5.18": "8.5.23",
+      "yaml@2.7.0": "2.8.3"
+    }
+  }
+}

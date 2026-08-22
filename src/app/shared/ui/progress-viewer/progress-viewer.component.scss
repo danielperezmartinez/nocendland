@@ -1,0 +1,35 @@
+.progress-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  box-shadow: none;
+}
+
+.progress-card header,
+.progress-card__scale {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.progress-card header {
+  justify-content: space-between;
+}
+
+.progress-card h3 {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.progress-card header strong {
+  color: var(--area-accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-card__scale > span {
+  min-width: 2.5rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}

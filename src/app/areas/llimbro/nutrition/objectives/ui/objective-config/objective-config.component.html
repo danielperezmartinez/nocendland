@@ -1,0 +1,37 @@
+<section class="objective-dialog" role="dialog" aria-modal="true" aria-labelledby="objective-dialog-title">
+  <header>
+    <div>
+      <p>Nutrición · parámetros</p>
+      <h1 id="objective-dialog-title">Configuración de objetivos</h1>
+    </div>
+    <button class="ui-icon-button" type="button" aria-label="Cerrar configuración" (click)="dialogRef.close()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+    </button>
+  </header>
+
+  <div class="objective-dialog__levels">
+    @for (objectiveConfigForm of objectiveConfigFormList; track objectiveConfigForm) {
+      <form class="objective-level" [formGroup]="objectiveConfigForm" (change)="saveObjectiveConfig()">
+        <h2>{{ objectiveConfigForm.controls['level'].value }}</h2>
+        <div class="objective-level__fields">
+          <label class="ui-field">
+            {{ text.ingredients.formLabels.calories }}
+            <input class="ui-input" formControlName="calories" type="number" (focus)="selectInputContent($event)">
+          </label>
+          <label class="ui-field">
+            {{ text.ingredients.formLabels.proteins }}
+            <input class="ui-input" formControlName="proteins" type="number" (focus)="selectInputContent($event)">
+          </label>
+          <label class="ui-field">
+            {{ text.ingredients.formLabels.carbohydrates }}
+            <input class="ui-input" formControlName="carbohydrates" type="number" (focus)="selectInputContent($event)">
+          </label>
+          <label class="ui-field">
+            {{ text.ingredients.formLabels.fats }}
+            <input class="ui-input" formControlName="fats" type="number" (focus)="selectInputContent($event)">
+          </label>
+        </div>
+      </form>
+    }
+  </div>
+</section>

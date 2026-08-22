@@ -1,0 +1,45 @@
+# Security policy: dependencies are denied install-time execution unless they
+# appear in allowBuilds after manual review.
+minimumReleaseAge: 10080
+trustPolicy: no-downgrade
+# Legacy Angular 19 dependencies predate widespread provenance adoption.
+# Keep strict trust checks for anything published during the last year.
+trustPolicyIgnoreAfter: 525600
+blockExoticSubdeps: true
+
+strictDepBuilds: true
+allowBuilds:
+  esbuild@0.25.1: true
+  # Angular builders used during the reviewed 20 -> 21 -> 22 migration.
+  esbuild@0.25.9: true
+  esbuild@0.27.3: true
+  esbuild@0.28.1: true
+  # Angular builder 22.1.4; el postinstall valida y enlaza el binario de plataforma.
+  esbuild@0.28.2: true
+  '@parcel/watcher': false
+  fsevents: false
+  lmdb: false
+  # Required by @angular/build 20.3.32; reviewed install script only.
+  lmdb@3.4.2: true
+  msgpackr-extract: false
+
+verifyStoreIntegrity: true
+strictStorePkgContentCheck: true
+verifyDepsBeforeRun: error
+
+# Angular 22 admite Node ^24.15.0. pnpm fija la versión exacta para mantener
+# el mismo runtime en desarrollo, CI y despliegue.
+useNodeVersion: 24.19.0
+nodeVersion: 24.19.0
+engineStrict: true
+
+packageManagerStrict: true
+packageManagerStrictVersion: true
+managePackageManagerVersions: false
+# Los runners opcionales de Angular deben declararse de forma explícita.
+autoInstallPeers: false
+
+savePrefix: ''
+preferFrozenLockfile: true
+lockfileIncludeTarballUrl: true
+auditLevel: high

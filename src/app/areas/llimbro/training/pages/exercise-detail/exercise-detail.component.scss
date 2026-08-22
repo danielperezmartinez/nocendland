@@ -1,0 +1,64 @@
+:host { display: block; }
+.exercise-detail-page { width: min(100%, 62rem); }
+.exercise-detail-page__loading { justify-self: center; margin-block: var(--space-8); }
+.exercise-detail-error { display: grid; justify-items: start; gap: var(--space-4); padding: var(--space-5); }
+.exercise-detail-error p { margin: 0; color: var(--color-danger); }
+
+.exercise-detail-heading { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-4); }
+.exercise-detail-heading h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.6rem); }
+
+.exercise-detail-identity { display: grid; grid-template-columns: 17rem minmax(0, 1fr); overflow: hidden; }
+.exercise-detail-identity__image { display: grid; min-height: 17rem; padding: var(--space-5); place-items: center; background: linear-gradient(145deg, var(--area-accent-soft), var(--color-surface-elevated)); }
+.exercise-detail-identity__image app-avatar { width: min(100%, 12rem); }
+.exercise-detail-identity__content { display: grid; align-content: center; justify-items: start; gap: var(--space-4); min-width: 0; padding: var(--space-6); }
+.exercise-detail-identity__content > p,
+.exercise-detail-tips > p { margin: 0; color: var(--color-text-muted); }
+.exercise-detail-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.exercise-detail-video { text-decoration: none; }
+
+.exercise-detail-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+.exercise-detail-stat { padding: var(--space-5); }
+.exercise-detail-stat span,
+.exercise-detail-stat small { display: block; color: var(--color-text-muted); }
+.exercise-detail-stat strong { display: block; margin-block: var(--space-2) var(--space-1); font: 760 clamp(1.45rem, 4vw, 2rem) / 1 var(--font-family-display); }
+.exercise-detail-stat small { color: var(--area-accent-strong); }
+
+.exercise-progress { display: grid; gap: var(--space-4); overflow: hidden; padding: var(--space-6); }
+.exercise-progress__header,
+.exercise-progress__session > header,
+.exercise-progress__session li { display: flex; justify-content: space-between; gap: var(--space-4); }
+.exercise-progress__header { align-items: start; }
+.exercise-progress h2,
+.exercise-progress h3,
+.exercise-detail-tips h2 { margin: 0; }
+.exercise-progress__header span,
+.exercise-progress__value span,
+.exercise-progress__session li span,
+.exercise-progress__empty span { color: var(--color-text-muted); }
+.exercise-progress__value { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); }
+.exercise-progress__value strong { font: 780 clamp(2rem, 7vw, 3.4rem) / 1 var(--font-family-display); }
+.exercise-progress apx-chart { display: block; min-height: 19rem; }
+.exercise-progress__session { display: grid; gap: var(--space-3); padding-top: var(--space-5); border-top: 1px solid var(--color-border); }
+.exercise-progress__session > header { align-items: end; }
+.exercise-progress__session > header > strong { color: var(--area-accent-strong); }
+.exercise-progress__session ol { display: grid; margin: 0; padding: 0; list-style: none; }
+.exercise-progress__session li { padding-block: var(--space-2); border-bottom: 1px solid var(--color-border); }
+.exercise-progress__empty { display: grid; gap: var(--space-2); min-height: 13rem; align-content: center; }
+.exercise-detail-tips { display: grid; gap: var(--space-4); padding: var(--space-6); }
+.exercise-detail-tips ol { display: grid; gap: var(--space-3); margin: 0; padding-left: var(--space-5); color: var(--color-text-muted); }
+
+@media (max-width: 42rem) {
+  .exercise-detail-heading { grid-template-columns: auto minmax(0, 1fr); }
+  .exercise-detail-mode { grid-column: 1 / -1; }
+  .exercise-detail-mode,
+  .exercise-detail-mode button { width: 100%; }
+  .exercise-detail-mode button { flex: 1; }
+  .exercise-detail-identity,
+  .exercise-detail-stats { grid-template-columns: 1fr; }
+  .exercise-detail-identity__image { min-height: 12rem; }
+  .exercise-detail-identity__content,
+  .exercise-progress { padding: var(--space-5); }
+  .exercise-progress__header { display: grid; }
+  .exercise-progress__ranges { justify-content: space-between; }
+  .exercise-progress__ranges button { padding-inline: var(--space-3); }
+}

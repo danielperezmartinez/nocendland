@@ -1,0 +1,8 @@
+:host { display: block; }
+.measurements-page { display: grid; min-height: min(42rem, calc(100dvh - 12rem)); place-items: center; padding: var(--space-6); }
+.measurements-wip { position: relative; overflow: hidden; width: min(100%, 46rem); padding: clamp(var(--space-6), 8vw, var(--space-12)); }
+.measurements-wip::after { position: absolute; width: 18rem; height: 18rem; border: 2.5rem solid var(--area-accent-soft); border-radius: 48% 52% 62% 38%; content: ''; inset: auto -6rem -8rem auto; transform: rotate(-18deg); }
+.measurements-wip__mark { display: grid; width: 4rem; aspect-ratio: 1; place-items: center; margin-bottom: var(--space-6); border-radius: 40% 60% 52% 48%; background: var(--area-accent-soft); color: var(--area-accent-ink); transform: rotate(-5deg); }
+.measurements-wip__mark .ui-icon { width: 2rem; height: 2rem; }
+.measurements-wip h1 { margin-bottom: var(--space-3); font-size: clamp(3rem, 12vw, 7rem); }
+.measurements-wip p:not(.section-eyebrow) { max-width: 32rem; color: var(--color-text-muted); }

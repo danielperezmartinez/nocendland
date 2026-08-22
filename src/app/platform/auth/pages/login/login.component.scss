@@ -1,0 +1,58 @@
+.login-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: var(--space-6);
+  background-color: var(--color-canvas);
+  background-image: var(--area-pattern);
+  background-size: var(--area-pattern-size);
+}
+
+.login-card {
+  width: min(100%, 34rem);
+  padding: clamp(var(--space-6), 7vw, var(--space-12));
+  overflow: hidden;
+}
+
+.login-card__mark {
+  display: grid;
+  width: 3.5rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: var(--radius-sm) var(--radius-sm) var(--radius-xl) var(--radius-sm);
+  background: var(--area-accent);
+  color: var(--color-text-inverse);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  transform: rotate(-5deg);
+}
+
+.login-card__eyebrow {
+  margin: var(--space-8) 0 var(--space-2);
+  color: var(--area-accent-strong);
+  font-size: var(--font-size-xs);
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.login-card h1 {
+  margin-bottom: var(--space-4);
+  font-size: clamp(2rem, 7vw, 3.75rem);
+}
+
+.login-card__intro {
+  max-width: 28rem;
+  color: var(--color-text-muted);
+}
+
+.login-card__actions {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+.login-card__actions .ui-button {
+  width: 100%;
+}

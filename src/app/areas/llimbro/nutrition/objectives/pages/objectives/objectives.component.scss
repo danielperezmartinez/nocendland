@@ -1,0 +1,35 @@
+.objectives-page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.objectives-page > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.objectives-page header p {
+  margin-bottom: var(--space-1);
+  color: var(--area-accent-strong);
+  font-size: var(--font-size-xs);
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.objectives-page h1 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+
+.objectives-page__grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.objectives-page__error {
+  margin: 0;
+  color: var(--color-danger);
+}

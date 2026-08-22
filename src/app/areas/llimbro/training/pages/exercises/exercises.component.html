@@ -1,0 +1,73 @@
+<main class="exercises-page training-page">
+  <header class="training-heading training-page-heading">
+    <div>
+      <p class="section-eyebrow">Entrenamiento · maestro</p>
+      <h1>Ejercicios</h1>
+      <span>Tu biblioteca de movimientos, técnica y referencias.</span>
+    </div>
+    <div class="training-heading__actions">
+      <button
+        class="ui-icon-button"
+        type="button"
+        [class.ui-button--danger]="shareMode()"
+        [attr.aria-label]="shareMode() ? 'Cancelar selección para compartir' : 'Seleccionar ejercicios para compartir'"
+        (click)="toggleShareMode()"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (shareMode() ? 'close' : 'share')"/></svg>
+      </button>
+      <button class="ui-icon-button" type="button" aria-label="Gestionar enlaces" (click)="managingShares.set(!managingShares())">
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#settings"/></svg>
+      </button>
+      <button
+        class="ui-icon-button"
+        type="button"
+        [class.ui-button--danger]="archiveMode()"
+        [attr.aria-label]="archiveMode() ? 'Cancelar archivado' : 'Seleccionar ejercicios para archivar'"
+        (click)="toggleArchiveMode()"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (archiveMode() ? 'close' : 'delete')"/></svg>
+      </button>
+      <button class="ui-icon-button" type="button" aria-label="Crear ejercicio" (click)="openForm('new')">
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+      </button>
+    </div>
+  </header>
+
+  @if (shareMode() || shareUrl() || managingShares()) {
+    <section class="exercise-sharing ui-card">
+      @if (shareMode()) {
+        <div>
+          <strong>Elige los ejercicios que quieres compartir</strong>
+          <span>El enlace guardará una copia independiente de sus datos e imágenes.</span>
+        </div>
+        <button class="ui-button ui-button--quiet" type="button" [disabled]="store.sharing()" (click)="shareAll()">Compartir todos</button>
+      }
+      @if (shareUrl()) {
+        <div class="exercise-sharing__link" role="status">
+          <input class="ui-input" readonly [value]="shareUrl()">
+          <button class="ui-button" type="button" (click)="copyShareUrl()">Copiar enlace</button>
+        </div>
+      }
+      <button class="ui-button ui-button--quiet" type="button" (click)="managingShares.set(!managingShares())">
+        {{ managingShares() ? 'Ocultar enlaces' : 'Gestionar enlaces' }}
+      </button>
+      @if (managingShares()) {
+        <div class="exercise-sharing__shares">
+          @for (share of store.shares(); track share.id) {
+            <article>
+              <div><strong>{{ share.title }}</strong><small>{{ share.share_type === 'schedule' ? 'Horario' : 'Ejercicios' }}</small></div>
+              @if (share.revoked_at) { <span>Revocado</span> } @else {
+                <button class="ui-button ui-button--quiet ui-button--danger" type="button" (click)="revokeShare(share.id)">Revocar</button>
+              }
+            </article>
+          } @empty { <p>Aún no has creado enlaces.</p> }
+        </div>
+      }
+      @if (shareError()) { <p class="exercise-sharing__error" role="alert">{{ shareError() }}</p> }
+    </section>
+  }
+
+  <section class="exercises-page__list">
+    <app-data-list [config]="config" [items]="items()"/>
+  </section>
+</main>

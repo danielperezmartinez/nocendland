@@ -1,0 +1,91 @@
+<section class="data-list">
+  <header class="data-list__tools ui-card">
+    <label class="data-list__search">
+      <span class="sr-only">Buscar</span>
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#search"/></svg>
+      <input
+        class="data-list__search-input"
+        type="search"
+        placeholder="Buscar"
+        [ngModel]="filter()"
+        (ngModelChange)="filter.set($event)"
+      >
+      @if (filter()) {
+        <button class="ui-icon-button" type="button" aria-label="Limpiar búsqueda" (click)="clearFilter()">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+        </button>
+      }
+    </label>
+
+    @if (config().actions?.reload) {
+      <button class="ui-icon-button" type="button" aria-label="Actualizar lista" (click)="reload()">
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#refresh"/></svg>
+      </button>
+    }
+
+    @if (config().loading?.()) {
+      <div class="data-list__loading" role="progressbar" aria-label="Actualizando lista"></div>
+    }
+  </header>
+
+  <div class="data-list__content">
+    @if (filteredItems().length === 0) {
+      <p class="data-list__empty">No hay elementos</p>
+    } @else {
+      <ul class="data-list__items" [attr.aria-label]="config().label">
+        @for (item of filteredItems(); track item.id) {
+          <li>
+            <button
+              class="data-list__item"
+              type="button"
+              [class.data-list__item--selected]="isSelected(item)"
+              [attr.aria-pressed]="multiple() ? isSelected(item) : null"
+              (click)="activate(item)"
+            >
+              @if (item.imageUrl !== undefined) {
+                <img [src]="item.imageUrl || defaultImagePath" [alt]="item.title">
+              }
+              <span class="data-list__copy">
+                <strong>{{ item.title }}</strong>
+                @for (detail of item.details; track detail) {
+                  <small>{{ detail }}</small>
+                }
+                @if (item.badges?.length) {
+                  <span class="data-list__badges" aria-label="Etiquetas">
+                    @for (badge of visibleBadges(item); track $index) {
+                      <app-badge [config]="badge"/>
+                    }
+                    @if (overflowBadge(item); as overflow) {
+                      <app-badge [config]="overflow"/>
+                    }
+                  </span>
+                }
+              </span>
+              @if (multiple()) {
+                <svg class="data-list__check ui-icon" aria-hidden="true">
+                  <use [attr.href]="'icons/atlas-icons.svg#' + (isSelected(item) ? 'check_circle' : 'radio_button_unchecked')"/>
+                </svg>
+              } @else {
+                <span class="data-list__arrow" aria-hidden="true">→</span>
+              }
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  @if (config().showSelectionConfirmation && multiple()) {
+    <footer class="data-list__footer">
+      <button
+        class="ui-button"
+        type="button"
+        [disabled]="selectedItems().length === 0"
+        (click)="confirmSelection()"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (config().confirmationIcon || 'done')"/></svg>
+        Confirmar selección
+      </button>
+    </footer>
+  }
+</section>

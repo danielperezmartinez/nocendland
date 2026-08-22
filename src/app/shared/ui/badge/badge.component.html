@@ -1,0 +1,22 @@
+<span
+  class="badge"
+  [class.badge--label]="config().variant === 'label'"
+  [class.badge--count]="config().variant === 'count'"
+  [class.badge--dot]="config().variant === 'dot'"
+  [attr.data-status]="status()"
+  [attr.role]="accessibleLabel() ? 'img' : null"
+  [attr.aria-label]="accessibleLabel()"
+>
+  @switch (config().variant) {
+    @case ('label') {
+      <span class="badge__marker" aria-hidden="true"></span>
+      <span>{{ label() }}</span>
+    }
+    @case ('count') {
+      <span aria-hidden="true">{{ countLabel() }}</span>
+    }
+    @case ('dot') {
+      <span class="badge__dot" [class.badge__dot--pulse]="pulsing()" aria-hidden="true"></span>
+    }
+  }
+</span>

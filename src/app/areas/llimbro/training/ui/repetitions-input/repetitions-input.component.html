@@ -1,0 +1,21 @@
+<span>{{ label() }}</span>
+<div class="ui-segmented-input">
+  @for (preset of presets(); track preset) {
+    <button
+      type="button"
+      [class.ui-segmented-input__option--active]="repetitions() === preset"
+      [attr.aria-pressed]="repetitions() === preset"
+      (click)="selectPreset(preset)"
+    >{{ preset }}</button>
+  }
+  <input
+    class="ui-input ui-segmented-input__custom"
+    type="number"
+    min="1"
+    step="1"
+    [attr.aria-label]="'Otras ' + label().toLocaleLowerCase()"
+    placeholder="Otra"
+    [value]="customRepetitions()"
+    (input)="updateCustomRepetitions($event)"
+  >
+</div>

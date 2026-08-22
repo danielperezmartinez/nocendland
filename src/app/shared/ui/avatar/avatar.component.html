@@ -1,0 +1,7 @@
+<div class="avatar" [class.avatar--loading]="loading()">
+  @if (loading()) {
+    <span class="ui-spinner avatar__spinner" role="status" aria-label="Cargando imagen"></span>
+  } @else {
+    <img class="avatar__image" [src]="imageSource()" alt="">
+  }
+</div>

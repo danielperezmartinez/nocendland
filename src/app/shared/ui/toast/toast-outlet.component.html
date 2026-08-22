@@ -1,0 +1,43 @@
+<section class="toast-region" aria-label="Avisos">
+  @for (toast of toastService.messages(); track toast.id) {
+    <article
+      class="toast"
+      [class.toast--success]="toast.kind === 'success'"
+      [class.toast--error]="toast.kind === 'error'"
+      [class.toast--paused]="pauseCounts().has(toast.id)"
+      [attr.role]="toast.kind === 'error' ? 'alert' : 'status'"
+      [attr.aria-live]="toast.kind === 'error' ? 'assertive' : 'polite'"
+      aria-atomic="true"
+      (pointerenter)="pause(toast.id)"
+      (pointerleave)="resume(toast.id)"
+      (focusin)="pause(toast.id)"
+      (focusout)="handleFocusOut(toast.id, $event)"
+    >
+      <span class="toast__accent" aria-hidden="true"></span>
+      <span class="toast__icon" aria-hidden="true">
+        <svg class="ui-icon">
+          <use [attr.href]="'icons/atlas-icons.svg#' + (toast.kind === 'success' ? 'done' : 'close')"/>
+        </svg>
+      </span>
+      <span class="toast__copy">
+        <strong>{{ toast.title }}</strong>
+        @if (toast.description) {
+          <span>{{ toast.description }}</span>
+        }
+      </span>
+      <button
+        class="toast__close ui-icon-button"
+        type="button"
+        [attr.aria-label]="'Cerrar aviso: ' + toast.title"
+        (click)="dismiss(toast.id)"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+      </button>
+      <span
+        class="toast__timer"
+        aria-hidden="true"
+        [style.--toast-duration]="toast.durationMs + 'ms'"
+      ></span>
+    </article>
+  }
+</section>

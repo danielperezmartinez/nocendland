@@ -1,0 +1,148 @@
+<main class="exercise-detail-page training-page">
+  @if (store.loadingExerciseDetail()) {
+    <span class="ui-spinner exercise-detail-page__loading" role="status" aria-label="Cargando ficha del ejercicio"></span>
+  } @else if (store.exerciseDetailError()) {
+    <section class="exercise-detail-error ui-card" role="alert">
+      <p>{{ store.exerciseDetailError() }}</p>
+      <button class="ui-button" type="button" (click)="goBack()">Volver a ejercicios</button>
+    </section>
+  } @else if (store.exerciseDetail(); as exercise) {
+    <header class="exercise-detail-heading">
+      <button class="ui-icon-button" type="button" [attr.aria-label]="routeContext.origin === 'tracking' ? 'Volver a seguimiento' : 'Volver a ejercicios'" (click)="goBack()">
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#arrow_back"/></svg>
+      </button>
+      <div>
+        <p class="section-eyebrow">Entrenamiento · ejercicio</p>
+        <h1>{{ exercise.name }}</h1>
+      </div>
+      <div class="exercise-detail-mode ui-segmented-control" aria-label="Modo de la ficha">
+        <button type="button" class="exercise-detail-mode__active" aria-pressed="true">Resumen</button>
+        <button type="button" aria-pressed="false" (click)="edit()">Editar</button>
+      </div>
+    </header>
+
+    <section class="exercise-detail-identity ui-card">
+      <div class="exercise-detail-identity__image">
+        <app-avatar [image]="exercise.imageUrl ?? null"/>
+      </div>
+      <div class="exercise-detail-identity__content">
+        @if (taxonomyBadges().length) {
+          <div class="exercise-detail-tags" aria-label="Clasificación">
+            @for (badge of taxonomyBadges(); track $index) {
+              <app-badge [config]="badge"/>
+            }
+          </div>
+        }
+        <p>{{ exercise.description || 'Este ejercicio todavía no tiene descripción.' }}</p>
+        @if (exercise.video_url) {
+          <a class="ui-button ui-button--quiet exercise-detail-video" [href]="exercise.video_url" target="_blank" rel="noopener noreferrer">
+            Ver vídeo de referencia
+          </a>
+        }
+      </div>
+    </section>
+
+    <section class="exercise-detail-stats" aria-label="Resumen del periodo">
+      <article class="exercise-detail-stat ui-card">
+        <span>Última sesión</span>
+        <strong>{{ latestSetSummary() }}</strong>
+        <small>{{ latestEntry() ? formatDate(latestEntry()!.performed_on) : 'Aún sin seguimiento' }}</small>
+      </article>
+      <article class="exercise-detail-stat ui-card">
+        <span>Mejor 1RM estimado</span>
+        <strong>{{ bestEstimatedOneRepMax() === null ? '—' : formatKilograms(bestEstimatedOneRepMax()!) }}</strong>
+        <small>{{ bestEstimatedOneRepMax() === null ? 'Necesita peso y entre 1 y 12 reps' : 'Fórmula de Epley' }}</small>
+      </article>
+      <article class="exercise-detail-stat ui-card">
+        <span>Sesiones</span>
+        <strong>{{ filteredHistory().length }}</strong>
+        <small>{{ selectedRangeLabel() }}</small>
+      </article>
+    </section>
+
+    <section class="exercise-progress ui-card">
+      <header class="exercise-progress__header">
+        <div>
+          <p class="section-eyebrow">Seguimiento</p>
+          <h2>Progreso</h2>
+          <span>Compara sesiones y consulta sus series.</span>
+        </div>
+        <div class="exercise-progress__ranges ui-segmented-control" aria-label="Periodo del gráfico">
+          @for (range of rangeOptions; track range.id) {
+            <button type="button" [attr.aria-pressed]="selectedRange() === range.id" (click)="selectRange(range.id)">{{ range.label }}</button>
+          }
+        </div>
+      </header>
+
+      @if (availableMetrics().length) {
+        <div class="exercise-progress__metrics ui-segmented-control" aria-label="Métrica del gráfico">
+          @for (metric of availableMetrics(); track metric) {
+            <button type="button" [attr.aria-pressed]="selectedMetric() === metric" (click)="selectMetric(metric)">{{ metricLabel(metric) }}</button>
+          }
+        </div>
+
+        @if (selectedPoint(); as point) {
+          <div class="exercise-progress__value">
+            <strong>{{ formatMetric(point.value) }}</strong>
+            <span>{{ formatDate(point.entry.performed_on) }}</span>
+          </div>
+        }
+
+        <p class="sr-only" id="exercise-progress-summary">{{ chartSummary() }}</p>
+        <apx-chart
+          [attr.aria-describedby]="'exercise-progress-summary'"
+          [series]="chartSeries()"
+          [chart]="chart"
+          [colors]="chartColors()"
+          [stroke]="chartStroke"
+          [fill]="chartFill"
+          [markers]="chartMarkers"
+          [dataLabels]="chartDataLabels"
+          [grid]="chartGrid()"
+          [xaxis]="chartXAxis()"
+          [yaxis]="chartYAxis()"
+          [tooltip]="chartTooltip()"
+        />
+
+        <label class="ui-field">
+          Explorar sesión
+          <select class="ui-select" [value]="selectedPoint()?.entry?.id" (change)="selectPointFromEvent($event)">
+            @for (point of progressPoints(); track point.entry.id) {
+              <option [value]="point.entry.id">{{ formatDate(point.entry.performed_on) }} · {{ formatMetric(point.value) }}</option>
+            }
+          </select>
+        </label>
+
+        @if (selectedPoint(); as point) {
+          <section class="exercise-progress__session" aria-live="polite">
+            <header><div><p class="section-eyebrow">Sesión seleccionada</p><h3>{{ formatDate(point.entry.performed_on) }}</h3></div><strong>{{ formatMetric(point.value) }}</strong></header>
+            <ol>
+              @for (set of point.entry.training_set; track set.id) {
+                <li><span>Serie {{ set.position }}</span><strong>{{ formatSet(set) }}</strong></li>
+              }
+            </ol>
+          </section>
+        }
+      } @else if (filteredHistory().length) {
+        <div class="exercise-progress__empty">
+          <strong>Las sesiones están guardadas, pero aún no contienen repeticiones suficientes para dibujar una tendencia.</strong>
+          <span>Completa las series desde Seguimiento para activar el gráfico.</span>
+        </div>
+      } @else {
+        <div class="exercise-progress__empty">
+          <strong>Este periodo todavía no tiene sesiones.</strong>
+          <span>Registra el ejercicio en Seguimiento o amplía el intervalo.</span>
+        </div>
+      }
+    </section>
+
+    <section class="exercise-detail-tips ui-card">
+      <header><p class="section-eyebrow">Técnica</p><h2>Tips</h2></header>
+      @if (exercise.tips.length) {
+        <ol>@for (tip of exercise.tips; track $index) { <li>{{ tip }}</li> }</ol>
+      } @else {
+        <p>Este ejercicio todavía no tiene recordatorios técnicos.</p>
+      }
+    </section>
+  }
+</main>

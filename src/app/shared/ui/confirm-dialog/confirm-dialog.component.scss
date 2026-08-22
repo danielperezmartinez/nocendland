@@ -1,0 +1,28 @@
+.confirm-dialog {
+  padding: var(--space-6);
+}
+
+.confirm-dialog__eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--area-accent-strong);
+  font-size: var(--font-size-xs);
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.confirm-dialog h1 {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-xl);
+}
+
+.confirm-dialog > p:last-of-type {
+  color: var(--color-text-muted);
+}
+
+.confirm-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}

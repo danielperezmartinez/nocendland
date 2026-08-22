@@ -1,0 +1,165 @@
+<main class="exercise-form-page">
+  <header class="exercise-form-page__header">
+    <button class="ui-icon-button" type="button" aria-label="Volver a ejercicios" (click)="goBack()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#arrow_back"/></svg>
+    </button>
+    <div>
+      <p class="section-eyebrow">Entrenamiento · ejercicio</p>
+      <h1>{{ isNew() ? 'Nuevo ejercicio' : 'Editar ejercicio' }}</h1>
+    </div>
+    <div class="exercise-form-page__actions">
+      @if (!isNew()) {
+        <div class="exercise-form-mode ui-segmented-control" aria-label="Modo de la ficha">
+          <button type="button" aria-pressed="false" (click)="viewSummary()">Resumen</button>
+          <button type="button" class="exercise-form-mode__active" aria-pressed="true">Editar</button>
+        </div>
+        <button class="ui-icon-button ui-button--danger" type="button" aria-label="Archivar ejercicio" (click)="archive()">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#delete"/></svg>
+        </button>
+      }
+    </div>
+  </header>
+
+  <form class="exercise-form" [formGroup]="form" (ngSubmit)="save()">
+    <section class="exercise-form__image ui-card">
+      @if (cropSource(); as source) {
+        <app-image-cropper
+          [source]="source"
+          [config]="cropperConfig"
+          (confirmed)="applyCrop($event)"
+          (cancelled)="cancelCrop()"
+        />
+      } @else {
+        <button
+          class="exercise-form__image-button"
+          type="button"
+          aria-label="Elegir otra imagen para el ejercicio"
+          [disabled]="store.savingExerciseImage()"
+          (click)="chooseImage()"
+        >
+          <app-avatar [image]="imageUrl()" [loading]="store.savingExerciseImage()"/>
+          <span>Pulsa para {{ imageUrl() ? 'cambiar' : 'elegir' }}</span>
+        </button>
+        <input #imageInput type="file" accept="image/*" hidden (change)="onImageSelected($event)">
+        <div class="exercise-form__image-actions">
+          <button class="ui-button ui-button--quiet" type="button" (click)="chooseImage()">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add_a_photo"/></svg>
+            {{ imageUrl() ? 'Cambiar imagen' : 'Elegir imagen' }}
+          </button>
+          @if (imageUrl()) {
+            <button class="ui-icon-button" type="button" aria-label="Editar encuadre" (click)="editImage()">
+              <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#edit"/></svg>
+            </button>
+            <button class="ui-icon-button ui-button--danger" type="button" aria-label="Quitar imagen" (click)="removeImage()">
+              <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#delete"/></svg>
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="exercise-form__fields ui-card">
+      <label class="ui-field">
+        Nombre
+        <input class="ui-input" formControlName="name" autocomplete="off">
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <small class="exercise-form__error">El nombre es obligatorio.</small>
+        }
+      </label>
+      <label class="ui-field">
+        Descripción
+        <textarea class="ui-textarea" formControlName="description" rows="4"></textarea>
+      </label>
+      <label class="ui-field">
+        Vídeo de referencia
+        <input class="ui-input" type="url" formControlName="videoUrl" inputmode="url" autocomplete="url" placeholder="https://…">
+        @if (form.controls.videoUrl.touched && form.controls.videoUrl.invalid) {
+          <small class="exercise-form__error">Introduce una URL completa que empiece por https://.</small>
+        }
+      </label>
+
+      <div class="exercise-form__taxonomy">
+        <p class="section-eyebrow">Clasificación</p>
+        <fieldset>
+          <legend>Modalidades</legend>
+          <div class="exercise-form__chips">
+            @for (option of modalities; track option.id) {
+              <label class="ui-choice-chip">
+                <input
+                  type="checkbox"
+                  [checked]="optionSelected(form.controls.trainingModalities, option.id)"
+                  (change)="toggleOption(form.controls.trainingModalities, option.id, $event)"
+                >
+                {{ option.label }}
+              </label>
+            }
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Zonas musculares</legend>
+          <div class="exercise-form__chips">
+            @for (option of muscleGroups; track option.id) {
+              <label class="ui-choice-chip">
+                <input
+                  type="checkbox"
+                  [checked]="optionSelected(form.controls.muscleGroups, option.id)"
+                  (change)="toggleOption(form.controls.muscleGroups, option.id, $event)"
+                >
+                {{ option.label }}
+              </label>
+            }
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Patrones de movimiento</legend>
+          <div class="exercise-form__chips">
+            @for (option of movementPatterns; track option.id) {
+              <label class="ui-choice-chip">
+                <input
+                  type="checkbox"
+                  [checked]="optionSelected(form.controls.movementPatterns, option.id)"
+                  (change)="toggleOption(form.controls.movementPatterns, option.id, $event)"
+                >
+                {{ option.label }}
+              </label>
+            }
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="exercise-form__tips" formArrayName="tips">
+        <header>
+          <div>
+            <p class="section-eyebrow">Técnica</p>
+            <h2>Tips</h2>
+          </div>
+          <button class="ui-icon-button" type="button" aria-label="Añadir tip" (click)="addTip()">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+          </button>
+        </header>
+        @if (tips.length === 0) {
+          <p class="exercise-form__empty">Añade recordatorios breves de postura, respiración o ejecución.</p>
+        }
+        @for (tip of tips.controls; track tip; let index = $index) {
+          <div class="exercise-form__tip">
+            <span aria-hidden="true">{{ index + 1 }}</span>
+            <input class="ui-input" [formControlName]="index" [attr.aria-label]="'Tip ' + (index + 1)">
+            <button class="ui-icon-button" type="button" [attr.aria-label]="'Eliminar tip ' + (index + 1)" (click)="removeTip(index)">
+              <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (error()) {
+      <p class="exercise-form__message" role="alert">{{ error() }}</p>
+    }
+    <footer>
+      <button class="ui-button" type="submit" [disabled]="store.savingExercise() || store.savingExerciseImage() || cropping()">
+        @if (store.savingExercise() || store.savingExerciseImage()) { <span class="ui-spinner" aria-hidden="true"></span> }
+        Guardar ejercicio
+      </button>
+    </footer>
+  </form>
+</main>

@@ -1,0 +1,22 @@
+.metric-card {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  box-shadow: none;
+  transform: rotate(var(--area-card-tilt));
+}
+
+.metric-card strong {
+  color: var(--area-accent-strong);
+  font-family: var(--font-family-data);
+  font-size: var(--font-size-xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-card span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}

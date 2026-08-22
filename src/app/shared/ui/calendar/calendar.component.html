@@ -1,0 +1,27 @@
+<div class="calendar">
+  <header>
+    <button class="ui-icon-button" type="button" aria-label="Mes anterior" (click)="prevMonth()">←</button>
+    <strong>{{ monthNames[currentMonth()] }} {{ currentYear() }}</strong>
+    <button class="ui-icon-button" type="button" aria-label="Mes siguiente" (click)="nextMonth()">→</button>
+  </header>
+
+  <div class="calendar__grid">
+    @for (day of weekDays; track day) {
+      <span class="calendar__weekday">{{ day }}</span>
+    }
+    @for (empty of emptyDays(); track $index) {
+      <span aria-hidden="true"></span>
+    }
+    @for (day of daysInMonth(); track day) {
+      <button
+        class="calendar__day"
+        type="button"
+        [class.calendar__day--selected]="isSelectedDay(day)"
+        [attr.aria-pressed]="isSelectedDay(day)"
+        (click)="selectDay(day)"
+      >
+        {{ day }}
+      </button>
+    }
+  </div>
+</div>

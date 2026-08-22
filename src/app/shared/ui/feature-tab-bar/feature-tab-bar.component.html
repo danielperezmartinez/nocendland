@@ -1,0 +1,19 @@
+<nav
+  class="feature-tab-bar"
+  [attr.aria-label]="label()"
+  [style.--feature-tab-count]="items().length"
+>
+  @for (item of items(); track item.id) {
+    <a
+      class="feature-tab-bar__item"
+      [class.feature-tab-bar__item--active]="activeId() === item.id"
+      [routerLink]="item.commands"
+      [attr.aria-current]="activeId() === item.id ? 'page' : null"
+    >
+      <span class="feature-tab-bar__icon" aria-hidden="true">
+        <svg class="ui-icon"><use [attr.href]="'icons/atlas-icons.svg#' + item.icon"/></svg>
+      </span>
+      <span class="feature-tab-bar__label">{{ item.label }}</span>
+    </a>
+  }
+</nav>

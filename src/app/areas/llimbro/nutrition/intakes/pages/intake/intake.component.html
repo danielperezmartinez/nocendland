@@ -1,0 +1,44 @@
+<main class="intake-page">
+  <details class="calendar-panel ui-card">
+    <summary>
+      <span>Calendario</span>
+      <strong>{{ formatDateForDisplay(nutritionStore.dateSelected()) }}</strong>
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#calendar_month"/></svg>
+    </summary>
+    <app-calendar [date]="nutritionStore.dateSelected()" (dateSelected)="dateSelected($event)"/>
+  </details>
+
+  <header class="page-heading">
+    <div>
+      <p>Nutrición · registro diario</p>
+      <h1>{{ selectingIngredients() ? 'Añadir alimentos' : 'Ingestas del día' }}</h1>
+    </div>
+    <div class="page-heading__actions">
+      <button
+        class="ui-icon-button"
+        type="button"
+        [attr.aria-label]="deleteMode() ? 'Salir del modo de borrado' : 'Seleccionar ingestas para borrar'"
+        [class.ui-button--danger]="deleteMode()"
+        (click)="deleteMode.set(!deleteMode())"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (deleteMode() ? 'delete_forever' : 'delete')"/></svg>
+      </button>
+      <button
+        class="ui-icon-button"
+        type="button"
+        [attr.aria-label]="selectingIngredients() ? 'Cancelar selección de alimentos' : 'Añadir alimentos'"
+        (click)="selectingIngredients.set(!selectingIngredients())"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (selectingIngredients() ? 'close' : 'add')"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="intake-page__list">
+    @if (selectingIngredients()) {
+      <app-data-list [config]="selectIngredientListConfig" [items]="ingredientListItems()"/>
+    } @else {
+      <app-data-list [config]="intakeListConfig" [items]="intakeListItems()"/>
+    }
+  </section>
+</main>

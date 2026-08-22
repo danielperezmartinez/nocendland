@@ -1,0 +1,210 @@
+<main class="schedule-page training-page">
+  <header class="schedule-heading training-page-heading">
+    <div>
+      <p class="section-eyebrow">Entrenamiento · plantilla semanal</p>
+      <h1>Horario</h1>
+      <span>Marca el rumbo de cada día. Luego podrás adaptarlo en Seguimiento.</span>
+    </div>
+    <div class="training-heading__actions">
+      <button
+        class="ui-icon-button"
+        type="button"
+        aria-label="Compartir horario"
+        [disabled]="store.sharing() || dirty() || catalogEditing()"
+        (click)="shareSchedule()"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#share"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="schedule-catalog ui-card" [class.schedule-catalog--editing]="catalogEditing()">
+    @if (!catalogEditing()) {
+      <div class="schedule-catalog__summary">
+        <label class="ui-field">Horario del catálogo
+          <select class="ui-select" [value]="store.selectedScheduleId() ?? ''" (change)="selectSchedule($event)">
+            @for (schedule of store.schedules(); track schedule.id) {
+              <option [value]="schedule.id">{{ schedule.name }}</option>
+            }
+          </select>
+        </label>
+        <app-badge class="schedule-catalog__status" [config]="selectedScheduleBadge()"/>
+        <button class="ui-icon-button" type="button" aria-label="Editar catálogo" (click)="beginCatalogEditing()">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#edit"/></svg>
+        </button>
+      </div>
+    } @else {
+      <header class="schedule-catalog__heading">
+        <div>
+          <p class="section-eyebrow">Modo edición</p>
+          <h2>Gestionar catálogo</h2>
+        </div>
+        <span>{{ visibleCatalogDrafts().length }} {{ visibleCatalogDrafts().length === 1 ? 'horario' : 'horarios' }}</span>
+      </header>
+
+      <div class="schedule-catalog__selector">
+        <label class="ui-field">Horario
+          <select class="ui-select" [value]="catalogSelectedKey() ?? ''" (change)="selectCatalogDraft($event)">
+            @for (schedule of visibleCatalogDrafts(); track schedule.key) {
+              <option [value]="schedule.key">{{ schedule.name || 'Sin nombre' }}</option>
+            }
+          </select>
+        </label>
+        <app-badge class="schedule-catalog__status" [config]="selectedCatalogDraftBadge()"/>
+      </div>
+
+      @if (selectedCatalogDraft(); as schedule) {
+        <label class="ui-field">Nombre
+          <input class="ui-input" [value]="schedule.name" (input)="updateCatalogName($event)">
+        </label>
+
+        <div class="schedule-catalog__actions" aria-label="Gestionar horarios">
+          <button class="ui-button ui-button--quiet" type="button" (click)="createScheduleDraft()">Nuevo</button>
+          <button
+            class="ui-button ui-button--quiet"
+            type="button"
+            [disabled]="schedule.id === null"
+            (click)="duplicateScheduleDraft()"
+          >Duplicar</button>
+          @if (!schedule.isActive) {
+            <button class="ui-button ui-button--quiet" type="button" (click)="activateCatalogDraft()">Usar en Seguimiento</button>
+          }
+          <button class="ui-button ui-button--quiet ui-button--danger" type="button" (click)="deleteScheduleDraft()">Eliminar</button>
+          <button class="ui-button ui-button--quiet" type="button" (click)="managingShares.set(!managingShares())">Enlaces</button>
+        </div>
+      }
+
+      @if (managingShares()) {
+        <div class="schedule-catalog__shares">
+          @for (share of store.shares(); track share.id) {
+            <article>
+              <div><strong>{{ share.title }}</strong><small>{{ share.share_type === 'schedule' ? 'Horario' : 'Ejercicios' }}</small></div>
+              @if (share.revoked_at) {
+                <span>Revocado</span>
+              } @else {
+                <button class="ui-button ui-button--quiet ui-button--danger" type="button" (click)="revokeShare(share.id)">Revocar</button>
+              }
+            </article>
+          } @empty {
+            <p>Aún no has creado enlaces.</p>
+          }
+        </div>
+      }
+
+      <footer class="schedule-catalog__footer">
+        <button class="ui-button ui-button--quiet" type="button" [disabled]="store.savingScheduleCatalog()" (click)="cancelCatalogEditing()">Cancelar</button>
+        <button
+          class="ui-button"
+          type="button"
+          [disabled]="!catalogDirty() || !catalogValid() || store.savingScheduleCatalog()"
+          (click)="saveCatalog()"
+        >Guardar cambios</button>
+      </footer>
+    }
+
+    @if (shareUrl()) {
+      <div class="schedule-catalog__link" role="status">
+        <input class="ui-input" readonly [value]="shareUrl()">
+        <button class="ui-button" type="button" (click)="copyShareUrl()">Copiar enlace</button>
+      </div>
+    }
+    @if (catalogError()) {
+      <p class="schedule-catalog__error" role="alert">{{ catalogError() }}</p>
+    }
+  </section>
+
+  @if (!catalogEditing()) {
+    <nav class="weekday-strip ui-card" aria-label="Días de la semana">
+      @for (day of weekdays; track day.id) {
+        <button
+          type="button"
+          [class.weekday-strip__day--active]="selectedWeekday() === day.id"
+          [attr.aria-current]="selectedWeekday() === day.id ? 'date' : null"
+          (click)="selectWeekday(day.id)"
+        >{{ day.shortLabel }}</button>
+      }
+    </nav>
+
+    <section class="schedule-board">
+      <header>
+        <div>
+          <p class="section-eyebrow">Día seleccionado</p>
+          <h2>{{ selectedDayLabel() }}</h2>
+        </div>
+        <div class="schedule-board__actions">
+          <span>{{ drafts().length }} {{ drafts().length === 1 ? 'ejercicio' : 'ejercicios' }}</span>
+          <button class="ui-button ui-button--quiet" type="button" (click)="toggleExerciseSelection()">
+            <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (selectingExercises() ? 'close' : 'add')"/></svg>
+            {{ selectingExercises() ? 'Cancelar' : 'Añadir ejercicios' }}
+          </button>
+        </div>
+      </header>
+
+      @if (selectingExercises()) {
+        <div #exerciseSelector class="schedule-page__selector">
+          <app-data-list [config]="exerciseListConfig" [items]="exerciseItems()"/>
+        </div>
+      } @else if (store.loadingSchedule()) {
+        <span class="ui-spinner" role="status" aria-label="Cargando horario"></span>
+      } @else if (drafts().length === 0) {
+        <div class="schedule-empty ui-card training-empty-state">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#fitness_center"/></svg>
+          <h3>Día abierto</h3>
+          <p>Añade ejercicios o déjalo libre para descansar.</p>
+        </div>
+      } @else {
+        <div class="schedule-list" uiSortableList (uiSortableMove)="reorder($event)">
+          @for (draft of drafts(); track draft.id ?? draft.exerciseId; let index = $index) {
+            <article
+              class="schedule-card ui-card"
+              [uiSortableItem]="index"
+              [uiSortableCount]="drafts().length"
+            >
+              <header>
+                <button
+                  class="schedule-card__handle ui-icon-button"
+                  type="button"
+                  uiSortableHandle
+                  [attr.aria-label]="'Reordenar ' + exerciseName(draft.exerciseId) + '. Posición ' + (index + 1) + ' de ' + drafts().length"
+                >
+                  <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#drag_handle"/></svg>
+                </button>
+                <app-badge class="schedule-card__index" [config]="exercisePositionBadge(index + 1)"/>
+                <h3>{{ exerciseName(draft.exerciseId) }}</h3>
+                <button class="ui-icon-button" type="button" aria-label="Quitar del horario" (click)="removeExercise(index)">
+                  <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+                </button>
+              </header>
+              <div class="schedule-card__targets">
+                <label class="ui-field">Series
+                  <input class="ui-input" type="number" min="1" step="1" [value]="draft.setCount" (input)="updateNumber(index, 'setCount', $event)">
+                </label>
+                <app-repetitions-input
+                  class="schedule-card__repetitions"
+                  [repetitions]="draft.targetRepetitions"
+                  (repetitionsChange)="setRepetitions(index, $event)"
+                />
+                <label class="ui-field">Peso · kg
+                  <input class="ui-input" type="number" min="0" step="0.25" placeholder="0" [value]="draft.targetWeightKg ?? ''" (input)="updateNumber(index, 'targetWeightKg', $event)">
+                </label>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    @if (!selectingExercises()) {
+      <footer class="schedule-save training-save-bar">
+        @if (saveError()) {
+          <span class="schedule-save__error" role="alert">{{ saveError() }}</span>
+        } @else {
+          <span [class.schedule-save__dirty]="dirty()">{{ dirty() ? 'Cambios sin guardar' : 'Horario al día' }}</span>
+        }
+        <button class="ui-button" type="button" [disabled]="!dirty() || store.savingSchedule()" (click)="save()">
+          Guardar horario
+        </button>
+      </footer>
+    }
+  }
+</main>

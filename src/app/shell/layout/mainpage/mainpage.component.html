@@ -1,0 +1,53 @@
+<div class="app-shell" [attr.data-area]="activeArea()" [class.app-shell--nav-open]="sideNavService.isOpen()">
+  <button
+    class="app-shell__scrim"
+    type="button"
+    aria-label="Cerrar navegación"
+    [attr.aria-hidden]="!sideNavService.isOpen()"
+    (click)="sideNavService.close()"
+  ></button>
+
+  <aside id="primary-navigation" class="app-shell__navigation" [attr.aria-hidden]="!sideNavService.isOpen()">
+    <div class="app-shell__navigation-topline">
+      <span class="app-shell__atlas-mark">Atlas personal</span>
+      <button class="ui-icon-button" type="button" aria-label="Cerrar navegación" (click)="sideNavService.close()">
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+      </button>
+    </div>
+
+    <app-user-info/>
+    <app-side-nav-menu/>
+    <div class="app-shell__version-row">
+      <p class="app-shell__version" aria-live="polite">
+        @if (appUpdate.checking()) {
+          Comprobando…
+        } @else {
+          Nocendland · v{{ environment.version }}
+        }
+      </p>
+      <button
+        class="ui-icon-button ui-icon-button--subtle"
+        type="button"
+        aria-label="Buscar actualizaciones"
+        [attr.aria-busy]="appUpdate.checking()"
+        [disabled]="appUpdate.checking()"
+        appTooltip="Buscar actualizaciones"
+        [appTooltipDisabled]="appUpdate.checking()"
+        (click)="appUpdate.checkForUpdate()"
+      >
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#refresh"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <main class="app-shell__main">
+    <app-header/>
+
+    <article class="app-shell__content" (click)="sideNavService.close()">
+      <ng-template #templateRef>
+        <router-outlet/>
+      </ng-template>
+      <app-column-center-container [template]="templateRef"/>
+    </article>
+  </main>
+</div>

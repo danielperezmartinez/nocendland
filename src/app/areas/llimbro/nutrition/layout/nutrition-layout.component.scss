@@ -1,0 +1,12 @@
+:host,
+.nutrition-layout {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.nutrition-layout {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--feature-tab-bar-height) + var(--feature-tab-bar-offset) + var(--space-6) + env(safe-area-inset-bottom));
+}

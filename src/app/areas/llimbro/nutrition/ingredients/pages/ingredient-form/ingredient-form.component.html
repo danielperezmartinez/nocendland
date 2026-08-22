@@ -1,0 +1,110 @@
+<main class="ingredient-page">
+  <header class="ingredient-page__header">
+    <button class="ui-icon-button" type="button" aria-label="Volver a alimentos" (click)="goBack()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#arrow_back"/></svg>
+    </button>
+    <div>
+      <p class="section-eyebrow">Nutrición · alimento</p>
+      <h1>
+        {{ new ? text.ingredients.formTitleNew : editing ? text.ingredients.formTitleEdit : text.ingredients.formTitleView }}
+      </h1>
+    </div>
+    @if (nutritionStore.savingIngredient()) {
+      <span class="ui-spinner" role="status" aria-label="Guardando alimento"></span>
+    }
+    @if (!new) {
+      <button class="ui-icon-button ui-button--danger" type="button" aria-label="Eliminar alimento" (click)="deleteIngredient()">
+        <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#delete"/></svg>
+      </button>
+    }
+  </header>
+
+  @if (new || editing) {
+    @if (ingredientForm) {
+      <form class="ingredient-form" [formGroup]="ingredientForm" (change)="saveIngredient()">
+        <label class="ui-field ingredient-form__wide">
+          {{ formLabels.name }}
+          <input id="name" class="ui-input" formControlName="name">
+        </label>
+        <label class="ui-field ingredient-form__wide">
+          {{ formLabels.description }}
+          <textarea class="ui-textarea" formControlName="description" rows="3"></textarea>
+        </label>
+
+        <h2 class="ingredient-form__wide">Por cada 100 g</h2>
+        <label class="ui-field">
+          {{ formLabels.calories }}
+          <input #calories class="ui-input" type="number" formControlName="calories_per_100" [min]="limits.caloriesPer100.min" [max]="limits.caloriesPer100.max" (focus)="calories.select()">
+        </label>
+        <label class="ui-field">
+          {{ formLabels.proteins }}
+          <input #proteins class="ui-input" type="number" formControlName="proteins_per_100" [min]="limits.macroPer100.min" [max]="limits.macroPer100.max" (focus)="proteins.select()">
+        </label>
+        <label class="ui-field">
+          {{ formLabels.fats }}
+          <input #fats class="ui-input" type="number" formControlName="fats_per_100" [min]="limits.macroPer100.min" [max]="limits.macroPer100.max" (focus)="fats.select()">
+        </label>
+        <label class="ui-field">
+          {{ formLabels.carbohydrates }}
+          <input #carbohydrates class="ui-input" type="number" formControlName="carbohydrates_per_100" [min]="limits.macroPer100.min" [max]="limits.macroPer100.max" (focus)="carbohydrates.select()">
+        </label>
+
+        <h2 class="ingredient-form__wide">Otras configuraciones</h2>
+        <label class="ui-field ingredient-form__wide">
+          {{ formLabels.gramsPerUnit }}
+          <input #gramsPerUnit class="ui-input" type="number" formControlName="grams_per_unit" [min]="limits.gramsPerUnit.min" [max]="limits.gramsPerUnit.max" (focus)="gramsPerUnit.select()">
+        </label>
+      </form>
+    }
+  } @else {
+    <div class="ingredient-profile">
+      <section class="ingredient-hero ui-card">
+        <app-avatar
+          [image]="$safeNavigationMigration(ingredientForm?.value['image'])"
+          [defaultImage]="defaultImage"
+          [loading]="nutritionStore.savingIngredientImage()"
+        />
+        <input #imageInput (change)="onFileSelected($event)" type="file" accept="image/*" capture="environment" hidden>
+        <div class="ingredient-hero__copy">
+          <p class="section-eyebrow">Ficha de alimento</p>
+          <h2>{{ ingredientForm?.value['name'] || text.common.loading }}</h2>
+          <span>{{ ingredientForm?.value['description'] }}</span>
+        </div>
+        <div class="ingredient-hero__actions">
+          <button class="ui-button ui-button--quiet" type="button" [disabled]="new" (click)="selectImage()">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add_a_photo"/></svg>
+            {{ text.ingredients.formAddPhoto }}
+          </button>
+          <button class="ui-button" type="button" (click)="editing = true">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#edit"/></svg>
+            {{ text.common.actions.edit }}
+          </button>
+        </div>
+      </section>
+
+      <section class="ingredient-chart ui-card">
+        <header>
+          <p class="section-eyebrow">Distribución</p>
+          <h2>Valor nutricional</h2>
+        </header>
+        <apx-chart
+          [series]="chartSeries()"
+          [chart]="chart"
+          [labels]="chartLabels"
+          [colors]="chartColors()"
+          [dataLabels]="chartDataLabels"
+          [legend]="chartLegend"
+          [plotOptions]="chartPlotOptions"
+          [stroke]="chartStroke()"
+          [tooltip]="chartTooltip"
+        />
+      </section>
+
+      <section class="ingredient-unit ui-card">
+        <p>Gramos por unidad</p>
+        <strong>{{ ingredientForm?.value['grams_per_unit'] || 0 }}</strong>
+        <span>g / unidad</span>
+      </section>
+    </div>
+  }
+</main>

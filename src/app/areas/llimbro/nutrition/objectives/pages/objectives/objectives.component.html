@@ -1,0 +1,23 @@
+<main class="objectives-page">
+  <header>
+    <div>
+      <p>Nutrición · progreso</p>
+      <h1>{{ text.objectives.name }}</h1>
+    </div>
+    <button class="ui-icon-button" type="button" aria-label="Configurar objetivos" (click)="openDialogObjectiveConfig()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#settings"/></svg>
+    </button>
+  </header>
+
+  @if (nutritionStore.objectiveTotalsError()) {
+    <p class="objectives-page__error ui-card" role="alert">
+      No se pudieron calcular los valores nutricionales de esta fecha.
+    </p>
+  } @else {
+    <article class="objectives-page__grid">
+      @for (progressConfig of progressConfigList(); track progressConfig.title) {
+        <app-progress-viewer [config]="progressConfig"/>
+      }
+    </article>
+  }
+</main>

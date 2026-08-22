@@ -1,0 +1,20 @@
+<article class="progress-card ui-card">
+  <header>
+    <h3>{{ config().title }}</h3>
+    <strong>{{ math.getPercentage(config().value, config().objective).toFixed(0) }}%</strong>
+  </header>
+  <div class="progress-card__scale">
+    <span>{{ config().value }}</span>
+    <div
+      class="ui-progress"
+      role="progressbar"
+      [attr.aria-label]="config().title"
+      [attr.aria-valuenow]="config().value"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="config().objective"
+    >
+      <span [style.width.%]="math.getPercentage(config().value, config().objective)"></span>
+    </div>
+    <span>{{ config().objective }}</span>
+  </div>
+</article>

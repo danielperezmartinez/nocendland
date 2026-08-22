@@ -1,0 +1,55 @@
+.objective-dialog {
+  padding: var(--space-6);
+}
+
+.objective-dialog > header p {
+  margin-bottom: var(--space-1);
+  color: var(--area-accent-strong);
+  font-size: var(--font-size-xs);
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.objective-dialog > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.objective-dialog h1 {
+  font-size: var(--font-size-xl);
+}
+
+.objective-dialog__levels {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.objective-level {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.objective-level h2 {
+  margin: 0;
+  color: var(--area-accent-strong);
+  font-size: var(--font-size-md);
+  text-transform: capitalize;
+}
+
+.objective-level__fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (width < 42rem) {
+  .objective-level__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

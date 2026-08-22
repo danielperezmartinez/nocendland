@@ -1,0 +1,13 @@
+<section
+  class="nutrition-layout"
+  [appFeatureSwipeNavigation]="tabs"
+  [featureSwipeActiveId]="activeTabId()"
+  [featureSwipeEnabled]="swipeEnabled()"
+>
+  <router-outlet/>
+  <app-feature-tab-bar
+    [items]="tabs"
+    [activeId]="activeTabId()"
+    label="Navegación de Nutrición"
+  />
+</section>

@@ -1,0 +1,19 @@
+<section class="user-card" aria-label="Perfil de usuario">
+  @if (!auth.user()) {
+    <div class="user-card__loading" role="status">
+      <span class="ui-spinner" aria-hidden="true"></span>
+      <span>Cargando perfil…</span>
+    </div>
+  } @else {
+    <img class="user-card__avatar" [src]="$safeNavigationMigration(auth.user()?.avatar_url)" alt="Avatar del usuario">
+    <div class="user-card__identity">
+      <strong>{{ auth.user()?.user_name }}</strong>
+      <small>{{ auth.user()?.email }}</small>
+    </div>
+  }
+
+  <button class="ui-button ui-button--quiet ui-button--danger" type="button" (click)="auth.signOut()">
+    <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#logout"/></svg>
+    Salir
+  </button>
+</section>

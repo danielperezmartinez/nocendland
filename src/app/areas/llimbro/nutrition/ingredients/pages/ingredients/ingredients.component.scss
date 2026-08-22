@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.ingredients-page {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+.ingredients-page > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.ingredients-page header p {
+  margin-bottom: var(--space-1);
+  color: var(--area-accent-strong);
+  font-size: var(--font-size-xs);
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ingredients-page h1 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+
+.ingredients-page__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ingredients-page__list {
+  min-height: 0;
+}

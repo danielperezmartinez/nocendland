@@ -1,0 +1,22 @@
+<nav class="atlas-navigation" aria-label="Áreas de Nocendland">
+  @for (category of menuItems; track category.title) {
+    <section class="atlas-navigation__section" [attr.data-area]="category.area">
+      <h2 class="atlas-navigation__eyebrow">{{ category.title }}</h2>
+
+      <div class="atlas-navigation__routes">
+        @for (button of category.buttons; track button.title) {
+          <button class="atlas-navigation__route" type="button" (click)="button.action()">
+            <span class="atlas-navigation__icon" aria-hidden="true">
+              <svg class="ui-icon"><use [attr.href]="'icons/atlas-icons.svg#' + button.icon"/></svg>
+            </span>
+            <span>
+              <strong>{{ button.title }}</strong>
+              <small>{{ button.description }}</small>
+            </span>
+            <span class="atlas-navigation__arrow" aria-hidden="true">↗</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+</nav>

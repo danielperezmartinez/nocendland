@@ -1,0 +1,19 @@
+<router-outlet></router-outlet>
+
+<app-toast-outlet/>
+
+@if (appUpdate.updateAvailable()) {
+  <aside class="app-update" role="status" aria-live="polite" aria-label="Actualización disponible">
+    <span class="app-update__icon" aria-hidden="true">
+      <svg class="ui-icon"><use href="icons/atlas-icons.svg#refresh"/></svg>
+    </span>
+    <div class="app-update__copy">
+      <strong>Nueva versión disponible</strong>
+      <span>Guarda primero cualquier cambio pendiente.</span>
+    </div>
+    <div class="app-update__actions">
+      <button class="ui-button ui-button--quiet" type="button" (click)="appUpdate.dismiss()">Ahora no</button>
+      <button class="ui-button" type="button" (click)="appUpdate.reload()">Actualizar</button>
+    </div>
+  </aside>
+}

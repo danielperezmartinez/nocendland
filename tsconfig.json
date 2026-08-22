@@ -1,0 +1,58 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": [
+      "ES2022",
+      "dom"
+    ],
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@areas/*": ["./src/app/areas/*"],
+      "@environments/*": ["./src/environments/*"],
+      "@platform/*": ["./src/app/platform/*"],
+      "@shell/*": ["./src/app/shell/*"],
+      "@shared/ui/avatar": ["./src/app/shared/ui/avatar/avatar.component.ts"],
+      "@shared/ui/badge": ["./src/app/shared/ui/badge/public-api.ts"],
+      "@shared/ui/calendar": ["./src/app/shared/ui/calendar/calendar.component.ts"],
+      "@shared/ui/card-data": ["./src/app/shared/ui/card-data/card-data.component.ts"],
+      "@shared/ui/column-center-container": ["./src/app/shared/ui/column-center-container/column-center-container.component.ts"],
+      "@shared/ui/confirm-dialog": ["./src/app/shared/ui/services/confirm-dialog.service.ts"],
+      "@shared/ui/data-list": ["./src/app/shared/ui/data-list/data-list.component.ts"],
+      "@shared/ui/dialog": ["./src/app/shared/ui/dialog/public-api.ts"],
+      "@shared/ui/feature-tab-bar": ["./src/app/shared/ui/feature-tab-bar/public-api.ts"],
+      "@shared/ui/image-cropper": ["./src/app/shared/ui/image-cropper/public-api.ts"],
+      "@shared/ui/progress-viewer": ["./src/app/shared/ui/progress-viewer/progress-viewer.component.ts"],
+      "@shared/ui/sortable-list": ["./src/app/shared/ui/sortable-list/public-api.ts"],
+      "@shared/ui/theme": ["./src/app/shared/ui/theme/public-api.ts"],
+      "@shared/ui/toast": ["./src/app/shared/ui/toast/public-api.ts"],
+      "@shared/ui/tooltip": ["./src/app/shared/ui/tooltip/public-api.ts"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@testing/*": ["./src/testing/*"],
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}

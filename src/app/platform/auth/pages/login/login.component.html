@@ -1,0 +1,19 @@
+<main class="login-page" data-area="home">
+  <section class="login-card ui-card">
+    <div class="login-card__mark" aria-hidden="true">N</div>
+    <p class="login-card__eyebrow">Tu atlas personal</p>
+    <h1>Todo lo que cuidas,<br>en un solo lugar.</h1>
+    <p class="login-card__intro">Accede a Nocendland para continuar registrando tus áreas, hábitos y progreso.</p>
+
+    <div class="login-card__actions">
+      <button class="ui-button" type="button" (click)="auth.signInWithGithub(returnPath)">
+        <span aria-hidden="true">GH</span>
+        Continuar con GitHub
+      </button>
+      <button class="ui-button ui-button--quiet" type="button" (click)="auth.signInWithGoogle(returnPath)">
+        <span aria-hidden="true">G</span>
+        Continuar con Google
+      </button>
+    </div>
+  </section>
+</main>

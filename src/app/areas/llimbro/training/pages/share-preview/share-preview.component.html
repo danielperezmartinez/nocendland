@@ -1,0 +1,104 @@
+<main class="share-preview-page">
+  @if (loading()) {
+    <span class="ui-spinner" role="status" aria-label="Cargando contenido compartido"></span>
+  } @else if (preview(); as shared) {
+    <header class="share-hero">
+      <div class="share-hero__mark" aria-hidden="true">↗</div>
+      <div>
+        <p class="section-eyebrow">Entrenamiento · contenido compartido</p>
+        <h1>{{ shared.manifest.title }}</h1>
+        <p>{{ shared.manifest.type === 'schedule' ? 'Horario semanal autocontenido' : 'Colección de ejercicios' }}</p>
+      </div>
+    </header>
+
+    @if (shared.manifest.schedule; as schedule) {
+      <section class="shared-week" aria-label="Distribución semanal">
+        @for (day of schedule.days; track day.weekday) {
+          <article class="shared-day ui-card" [class.shared-day--rest]="day.items.length === 0">
+            <header>
+              <span>{{ weekdays[day.weekday - 1].shortLabel }}</span>
+              <strong>{{ day.items.length }}</strong>
+            </header>
+            @if (day.items.length) {
+              <ol>
+                @for (item of day.items; track item.exercisePortableId) {
+                  <li>
+                    {{ exerciseName(item.exercisePortableId) }}
+                    <small>{{ item.setCount }} series</small>
+                  </li>
+                }
+              </ol>
+            } @else {
+              <p>Descanso</p>
+            }
+          </article>
+        }
+      </section>
+    }
+
+    <section class="shared-exercises">
+      <header>
+        <p class="section-eyebrow">Incluye</p>
+        <h2>{{ shared.manifest.exercises.length }} {{ shared.manifest.exercises.length === 1 ? 'ejercicio' : 'ejercicios' }}</h2>
+      </header>
+      <div class="shared-exercises__grid">
+        @for (exercise of shared.manifest.exercises; track exercise.portableId) {
+          <article class="shared-exercise ui-card">
+            <app-avatar [image]="exercise.imageUrl || null"/>
+            <div>
+              <h3>{{ exercise.name }}</h3>
+              <p>{{ exercise.description || 'Sin descripción' }}</p>
+              @if (exactMatches().has(exercise.portableId)) {
+                <label class="ui-field">Ya tienes una copia
+                  <select class="ui-select" [value]="conflicts()[exercise.portableId]" (change)="setConflict(exercise.portableId, $event)">
+                    <option value="keep">Conservar mi versión</option>
+                    <option value="update">Actualizar con esta</option>
+                  </select>
+                </label>
+              } @else if (nameCollision(exercise.portableId, exercise.name)) {
+                <small class="shared-exercise__warning">Ya tienes otro ejercicio con este nombre. Se importará por separado.</small>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    @if (!result()) {
+      <footer class="share-import ui-card">
+        @if (shared.manifest.type === 'schedule' && authenticated()) {
+          <label class="share-import__activation">
+            <input type="checkbox" [checked]="activateSchedule()" (change)="activateSchedule.set(!activateSchedule())">
+            Activar este horario al importarlo
+          </label>
+        }
+        <button class="ui-button" type="button" [disabled]="importing()" (click)="importShare()">
+          {{ authenticated() ? (importing() ? 'Importando…' : 'Importar en mi cuenta') : 'Iniciar sesión para importar' }}
+        </button>
+      </footer>
+    } @else {
+      <section class="share-success ui-card" role="status">
+        <span>✓</span>
+        <div>
+          <h2>Contenido importado</h2>
+          @if (result()!.imageFailures.length) {
+            <p>Se importó todo salvo las imágenes de: {{ result()!.imageFailures.join(', ') }}.</p>
+          } @else {
+            <p>Ya está disponible en tu espacio de Entrenamiento.</p>
+          }
+        </div>
+        <button class="ui-button" type="button" (click)="openTraining()">Abrir Entrenamiento</button>
+      </section>
+    }
+  } @else {
+    <section class="share-missing ui-card">
+      <div aria-hidden="true">×</div>
+      <h1>Enlace no disponible</h1>
+      <p>{{ error() }}</p>
+    </section>
+  }
+
+  @if (error() && preview()) {
+    <p class="share-error" role="alert">{{ error() }}</p>
+  }
+</main>

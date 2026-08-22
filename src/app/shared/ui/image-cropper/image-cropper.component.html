@@ -1,0 +1,63 @@
+<section class="image-cropper" [attr.aria-busy]="loading() || processing()">
+  <div
+    #viewport
+    class="image-cropper__viewport"
+    tabindex="0"
+    role="application"
+    [attr.aria-label]="resolvedConfig().altText"
+    [style.aspect-ratio]="viewportAspectRatio()"
+    (keydown)="handleKeyboard($event)"
+    (pointerdown)="startDrag($event)"
+    (pointermove)="moveDrag($event)"
+    (pointerup)="stopDrag($event)"
+    (pointercancel)="stopDrag($event)"
+  >
+    <img
+      class="image-cropper__image"
+      draggable="false"
+      crossorigin="anonymous"
+      alt=""
+      [src]="sourceUrl()"
+      [style.width.px]="displayedImageSize().width"
+      [style.height.px]="displayedImageSize().height"
+      [style.transform]="imageTransform()"
+      (load)="onImageLoaded($event)"
+      (error)="onImageError()"
+    >
+    <span class="image-cropper__guide" aria-hidden="true"></span>
+    @if (loading()) {
+      <span class="ui-spinner image-cropper__spinner" role="status" aria-label="Preparando imagen"></span>
+    }
+  </div>
+
+  <div class="image-cropper__controls">
+    <label>
+      <span>Encuadre</span>
+      <input
+        type="range"
+        min="1"
+        max="3"
+        step="0.01"
+        [value]="zoom()"
+        [disabled]="loading() || processing()"
+        (input)="changeZoom($event)"
+      >
+    </label>
+    <button class="ui-button ui-button--quiet" type="button" [disabled]="loading() || processing()" (click)="reset()">
+      Reajustar
+    </button>
+  </div>
+
+  <p class="image-cropper__hint">Arrastra la imagen o usa las flechas para colocarla dentro del marco.</p>
+  @if (error()) {
+    <p class="image-cropper__error" role="alert">{{ error() }}</p>
+  }
+
+  <footer class="image-cropper__actions">
+    <button class="ui-button ui-button--quiet" type="button" [disabled]="processing()" (click)="cancelled.emit()">Cancelar</button>
+    <button class="ui-button" type="button" [disabled]="loading() || processing() || !!error()" (click)="confirm()">
+      @if (processing()) { <span class="ui-spinner" aria-hidden="true"></span> }
+      Aplicar encuadre
+    </button>
+  </footer>
+</section>

@@ -1,0 +1,18 @@
+# Servidor local y reproducible para generar y validar configuraciones de ApexCharts.
+[mcp_servers.apexcharts]
+command = "pnpm"
+args = ["exec", "apexcharts-mcp"]
+enabled = true
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+default_tools_approval_mode = "approve"
+enabled_tools = [
+  "apexcharts_list_products",
+  "apexcharts_list_types",
+  "apexcharts_generate_config",
+  "apexcharts_validate_config",
+  "apexcharts_get_reference",
+]
+
+[mcp_servers.apexcharts.env]
+APEXCHARTS_MCP_PRODUCTS = "charts"

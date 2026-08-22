@@ -1,0 +1,111 @@
+<main class="tracking-page training-page" [class.tracking-page--selecting]="selectingExercises()">
+  <details class="tracking-calendar ui-card">
+    <summary>
+      <span>Fecha de entrenamiento</span>
+      <strong>{{ formatDateForDisplay(store.selectedDate()) }}</strong>
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#calendar_month"/></svg>
+    </summary>
+    <app-calendar [date]="store.selectedDate()" (dateSelected)="selectDate($event)"/>
+  </details>
+
+  <header class="tracking-heading training-page-heading">
+    <div>
+      <p class="section-eyebrow">Entrenamiento · diario</p>
+      <h1>{{ selectingExercises() ? 'Elige ejercicios' : 'Seguimiento' }}</h1>
+      <span>{{ formatDateForDisplay(store.selectedDate()) }}</span>
+    </div>
+    <button
+      class="ui-icon-button"
+      type="button"
+      [attr.aria-label]="selectingExercises() ? 'Cancelar selección' : 'Añadir registros'"
+      (click)="selectingExercises.set(!selectingExercises())"
+    >
+      <svg class="ui-icon" aria-hidden="true"><use [attr.href]="'icons/atlas-icons.svg#' + (selectingExercises() ? 'close' : 'add')"/></svg>
+    </button>
+  </header>
+
+  @if (selectingExercises()) {
+    <app-data-list [config]="exerciseListConfig" [items]="exerciseItems()"/>
+  } @else {
+    <section class="tracking-list" aria-label="Registros del día">
+      @if (store.loadingEntries()) {
+        <span class="ui-spinner" role="status" aria-label="Cargando seguimiento"></span>
+      } @else if (drafts().length === 0) {
+        <div class="tracking-empty ui-card training-empty-state">
+          <span>00</span>
+          <h2>La sesión está por escribir</h2>
+          <p>Añade ejercicios; los previstos para hoy ya aparecerán seleccionados.</p>
+        </div>
+      } @else {
+        @for (entry of drafts(); track entry.clientId; let entryIndex = $index) {
+          <article class="tracking-entry ui-card">
+            <header>
+              <div class="tracking-entry__exercise">
+                <p class="section-eyebrow">Ejercicio {{ entryIndex + 1 }}</p>
+                <h2>{{ exerciseName(entry.exerciseId) }}</h2>
+              </div>
+              <div class="tracking-entry__actions">
+                @if (loadProgressionRecommendations().get(entry.exerciseId); as recommendation) {
+                  <button
+                    class="ui-icon-button tracking-entry__recommendation"
+                    type="button"
+                    aria-label="Recomendación: puedes subir peso"
+                    [appTooltip]="formatLoadProgressionTooltip(recommendation)"
+                  >
+                    <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#arrow_upward"/></svg>
+                  </button>
+                }
+                <button class="ui-icon-button tracking-entry__detail" type="button" [attr.aria-label]="'Ver ficha y progreso de ' + exerciseName(entry.exerciseId)" (click)="openExercise(entry.exerciseId)">
+                  <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#analytics"/></svg>
+                </button>
+                <button class="ui-icon-button ui-button--danger" type="button" aria-label="Eliminar registro" (click)="removeEntry(entryIndex)">
+                  <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#delete"/></svg>
+                </button>
+              </div>
+            </header>
+
+            @if (store.previousSessions().get(entry.exerciseId); as previousSession) {
+              <aside class="tracking-entry__previous" aria-label="Última sesión anterior">
+                <strong>Última sesión · {{ formatPreviousDate(previousSession.performed_on) }}</strong>
+                <ul>
+                  @for (set of previousSession.training_set; track set.id) {
+                    <li><span>S{{ set.position }}</span><span>{{ formatPreviousSet(set) }}</span></li>
+                  }
+                </ul>
+              </aside>
+            }
+
+            <div class="set-table">
+              @for (set of entry.sets; track set.clientId; let setIndex = $index) {
+                <div class="set-row">
+                  <app-badge class="set-row__position" [config]="setPositionBadge(set.position)"/>
+                  <label class="ui-field set-row__repetitions">
+                    <span>Repeticiones</span>
+                    <input class="ui-input" type="number" min="1" step="1" placeholder="0" [attr.aria-label]="'Repeticiones · serie ' + set.position" [value]="set.repetitions ?? ''" (input)="updateSet(entryIndex, setIndex, 'repetitions', $event)">
+                  </label>
+                  <label class="ui-field set-row__weight">
+                    <span>Peso · kg</span>
+                    <input class="ui-input" type="number" min="0" step="0.25" placeholder="0" [value]="set.weightKg ?? ''" (input)="updateSet(entryIndex, setIndex, 'weightKg', $event)">
+                  </label>
+                  <button class="ui-icon-button" type="button" aria-label="Eliminar serie" [disabled]="entry.sets.length === 1" (click)="removeSet(entryIndex, setIndex)">
+                    <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <button class="tracking-entry__add-set" type="button" (click)="addSet(entryIndex)">
+              <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+              Añadir serie
+            </button>
+          </article>
+        }
+      }
+    </section>
+
+    <footer class="tracking-save training-save-bar">
+      <span [class.tracking-save__dirty]="dirty()">{{ dirty() ? 'Cambios sin guardar' : 'Seguimiento al día' }}</span>
+      <button class="ui-button" type="button" [disabled]="!dirty() || store.savingEntries()" (click)="save()">Guardar seguimiento</button>
+    </footer>
+  }
+</main>

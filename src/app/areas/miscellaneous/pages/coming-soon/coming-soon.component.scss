@@ -1,0 +1,9 @@
+:host { display: block; }
+.area-preview { display: grid; min-height: min(42rem, calc(100dvh - 12rem)); place-items: center; padding: var(--space-6); }
+.area-preview__card { position: relative; overflow: hidden; width: min(100%, 46rem); padding: clamp(var(--space-6), 8vw, var(--space-12)); }
+.area-preview__card::after { position: absolute; width: 17rem; height: 17rem; border: 2.5rem solid var(--area-accent-soft); border-radius: 38% 62% 45% 55%; content: ''; inset: auto -6rem -8rem auto; transform: rotate(18deg); }
+.area-preview__mark { display: grid; width: 4rem; aspect-ratio: 1; place-items: center; margin-bottom: var(--space-6); border-radius: 38% 62% 55% 45%; background: var(--area-accent-soft); color: var(--area-accent-ink); transform: rotate(4deg); }
+.area-preview__mark .ui-icon { width: 2rem; height: 2rem; }
+.area-preview h1 { margin-bottom: var(--space-3); font-size: clamp(3rem, 12vw, 7rem); }
+.area-preview p:not(.section-eyebrow) { max-width: 34rem; color: var(--color-text-muted); }
+.area-preview__stamp { position: absolute; top: var(--space-6); right: var(--space-6); color: var(--area-accent-strong); font-family: var(--font-family-data); font-size: var(--font-size-xs); font-weight: 800; letter-spacing: .18em; transform: rotate(5deg); }
