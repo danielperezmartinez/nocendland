@@ -10,7 +10,10 @@ const corsHeaders = {
 const supabaseUrl = Deno.env.get('SUPABASE_URL') as string
 const anonymousKey = Deno.env.get('SUPABASE_ANON_KEY') as string
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
-const adminClient = createClient(supabaseUrl, serviceRoleKey, {auth: {persistSession: false}})
+const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+  auth: {persistSession: false},
+  db: {schema: 'nocendland'},
+})
 
 type ShareType = 'exercises' | 'schedule'
 type ConflictAction = 'keep' | 'update'
@@ -132,6 +135,7 @@ async function authenticateUser(request: Request): Promise<UserContext | null> {
     userId: user.data.user.id,
     supabase: createClient(supabaseUrl, anonymousKey, {
       auth: {persistSession: false},
+      db: {schema: 'nocendland'},
       global: {headers: {Authorization: authorization}},
     }),
   }

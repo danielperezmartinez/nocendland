@@ -1,0 +1,2 @@
+-- Esta versión pertenece a la aplicación gift-card en el proyecto Supabase compartido.
+-- Nocendland conserva solo el marcador del ledger y no crea ni modifica objetos gift_card.

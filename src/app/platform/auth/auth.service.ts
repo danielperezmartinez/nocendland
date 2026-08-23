@@ -1,11 +1,11 @@
 import {Injectable, signal} from '@angular/core';
 import {Router} from '@angular/router';
-import {OAuthResponse} from '@supabase/supabase-js';
+import {OAuthResponse, User} from '@supabase/supabase-js';
 import {SupabaseClientService} from '@platform/supabase/supabase-client.service';
 import {Database} from '@platform/supabase/database.types';
 
 export type AuthProvider = 'github' | 'google'
-export type AppUser = Database['public']['Tables']['user']['Row']
+export type AppUser = Database['nocendland']['Tables']['user']['Row']
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -25,7 +25,7 @@ export class AuthService {
       return false
     }
 
-    await this.loadUserProfile(data.user.id)
+    await this.loadUserProfile(data.user)
     return true
   }
 
@@ -73,15 +73,36 @@ export class AuthService {
     })
   }
 
-  private async loadUserProfile(userId: string): Promise<void> {
+  private async loadUserProfile(authUser: User): Promise<void> {
     const {data, error} = await this.supabase.client
       .from('user')
       .select('*')
-      .eq('id', userId)
-      .single()
+      .eq('id', authUser.id)
+      .maybeSingle()
 
     if (error) throw error
-    this.userState.set(data)
+    if (data) {
+      this.userState.set(data)
+      return
+    }
+
+    if (!authUser.email) throw new Error('The authenticated user has no email')
+
+    const metadata = authUser.user_metadata
+    const {data: createdProfile, error: creationError} = await this.supabase.client
+      .from('user')
+      .upsert({
+        id: authUser.id,
+        email: authUser.email,
+        user_name: metadata['user_name'] ?? metadata['name'] ?? authUser.email.split('@')[0],
+        avatar_url: metadata['avatar_url'] ??
+          'https://e7.pngegg.com/pngimages/643/454/png-clipart-business-game-avatar-computer-program-google-smart-object-game-child-thumbnail.png',
+      }, {onConflict: 'id'})
+      .select('*')
+      .single()
+
+    if (creationError) throw creationError
+    this.userState.set(createdProfile)
   }
 
   private authRedirectUrl(returnPath: string): string {

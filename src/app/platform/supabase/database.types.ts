@@ -10,34 +10,9 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.15"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-  public: {
+  nocendland: {
     Tables: {
       nutrition_ingredient: {
         Row: {
@@ -134,7 +109,7 @@ export type Database = {
           carbohydrates: number
           fats: number
           id_user: string
-          level: Database["public"]["Enums"]["nutrition_objetive_levels"]
+          level: Database["nocendland"]["Enums"]["nutrition_objetive_levels"]
           proteins: number
         }
         Insert: {
@@ -142,7 +117,7 @@ export type Database = {
           carbohydrates?: number
           fats?: number
           id_user: string
-          level: Database["public"]["Enums"]["nutrition_objetive_levels"]
+          level: Database["nocendland"]["Enums"]["nutrition_objetive_levels"]
           proteins?: number
         }
         Update: {
@@ -150,7 +125,7 @@ export type Database = {
           carbohydrates?: number
           fats?: number
           id_user?: string
-          level?: Database["public"]["Enums"]["nutrition_objetive_levels"]
+          level?: Database["nocendland"]["Enums"]["nutrition_objetive_levels"]
           proteins?: number
         }
         Relationships: [
@@ -167,17 +142,17 @@ export type Database = {
         Row: {
           id: number
           id_user: string
-          level: Database["public"]["Enums"]["nutrition_objetive_levels"]
+          level: Database["nocendland"]["Enums"]["nutrition_objetive_levels"]
         }
         Insert: {
           id?: number
           id_user: string
-          level?: Database["public"]["Enums"]["nutrition_objetive_levels"]
+          level?: Database["nocendland"]["Enums"]["nutrition_objetive_levels"]
         }
         Update: {
           id?: number
           id_user?: string
-          level?: Database["public"]["Enums"]["nutrition_objetive_levels"]
+          level?: Database["nocendland"]["Enums"]["nutrition_objetive_levels"]
         }
         Relationships: [
           {
@@ -735,10 +710,7 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
-  public: {
+  nocendland: {
     Enums: {
       nutrition_objetive_levels: ["keep", "good", "top"],
     },

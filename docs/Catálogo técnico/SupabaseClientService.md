@@ -7,8 +7,8 @@ Estado: "Vigente"
 Ámbito: "Aplicación"
 Fuente: "src/app/platform/supabase/supabase-client.service.ts"
 Entrada pública: "@platform/supabase/supabase-client.service"
-Resumen: "Mantiene el único cliente Supabase tipado y el nombre del bucket técnico de la aplicación."
-Última modificación: "2026-08-22T14:00:00+02:00"
+Resumen: "Mantiene el único cliente Supabase tipado, fijado al esquema nocendland, y el nombre del bucket técnico de la aplicación."
+Última modificación: "2026-08-23T21:56:26+02:00"
 ---
 
 # SupabaseClientService

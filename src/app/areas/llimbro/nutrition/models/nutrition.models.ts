@@ -9,13 +9,13 @@ export type NutritionIngredientImage = {
   lastModified: string
 }
 
-export type NutritionIngredient = Database['public']['Tables']['nutrition_ingredient']['Row']
+export type NutritionIngredient = Database['nocendland']['Tables']['nutrition_ingredient']['Row']
 export type NutritionIngredientListItem = NutritionIngredient & {image?: string}
-export type NutritionIntake = Database['public']['Tables']['nutrition_intake']['Update']
-export type NutritionIntakeWithTotals = Database['public']['Views']['nutrition_intake_with_totals']['Row']
-export type NutritionObjectiveTotals = Database['public']['Views']['nutrition_objectives_totals']['Row']
-export type NutritionObjectiveLevel = Database['public']['Enums']['nutrition_objetive_levels']
-export type NutritionObjective = Database['public']['Tables']['nutrition_objective']['Row']
+export type NutritionIntake = Database['nocendland']['Tables']['nutrition_intake']['Update']
+export type NutritionIntakeWithTotals = Database['nocendland']['Views']['nutrition_intake_with_totals']['Row']
+export type NutritionObjectiveTotals = Database['nocendland']['Views']['nutrition_objectives_totals']['Row']
+export type NutritionObjectiveLevel = Database['nocendland']['Enums']['nutrition_objetive_levels']
+export type NutritionObjective = Database['nocendland']['Tables']['nutrition_objective']['Row']
 
 export type NutritionIntakeWithIngredient = {
   date: string

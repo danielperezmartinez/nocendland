@@ -1,17 +1,17 @@
 import {Database} from '@platform/supabase/database.types'
 import {TrainingModality, TrainingMovementPattern, TrainingMuscleGroup} from '../training.constants'
 
-export type TrainingExercise = Database['public']['Tables']['training_exercise']['Row']
-export type TrainingExerciseInsert = Database['public']['Tables']['training_exercise']['Insert']
-export type TrainingSchedule = Database['public']['Tables']['training_schedule']['Row']
-export type TrainingScheduleInsert = Database['public']['Tables']['training_schedule']['Insert']
-export type TrainingScheduleItem = Database['public']['Tables']['training_schedule_item']['Row']
-export type TrainingScheduleItemInsert = Database['public']['Tables']['training_schedule_item']['Insert']
-export type TrainingShare = Database['public']['Tables']['training_share']['Row']
-export type TrainingEntry = Database['public']['Tables']['training_entry']['Row']
-export type TrainingEntryInsert = Database['public']['Tables']['training_entry']['Insert']
-export type TrainingSet = Database['public']['Tables']['training_set']['Row']
-export type TrainingSetInsert = Database['public']['Tables']['training_set']['Insert']
+export type TrainingExercise = Database['nocendland']['Tables']['training_exercise']['Row']
+export type TrainingExerciseInsert = Database['nocendland']['Tables']['training_exercise']['Insert']
+export type TrainingSchedule = Database['nocendland']['Tables']['training_schedule']['Row']
+export type TrainingScheduleInsert = Database['nocendland']['Tables']['training_schedule']['Insert']
+export type TrainingScheduleItem = Database['nocendland']['Tables']['training_schedule_item']['Row']
+export type TrainingScheduleItemInsert = Database['nocendland']['Tables']['training_schedule_item']['Insert']
+export type TrainingShare = Database['nocendland']['Tables']['training_share']['Row']
+export type TrainingEntry = Database['nocendland']['Tables']['training_entry']['Row']
+export type TrainingEntryInsert = Database['nocendland']['Tables']['training_entry']['Insert']
+export type TrainingSet = Database['nocendland']['Tables']['training_set']['Row']
+export type TrainingSetInsert = Database['nocendland']['Tables']['training_set']['Insert']
 
 export type TrainingExerciseListItem = TrainingExercise & {imageUrl?: string}
 export type TrainingScheduleItemWithExercise = TrainingScheduleItem & {training_exercise: TrainingExercise}

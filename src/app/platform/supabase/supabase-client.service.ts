@@ -5,6 +5,8 @@ import {Database} from './database.types';
 
 @Injectable({providedIn: 'root'})
 export class SupabaseClientService {
-  readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey)
+  readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey, {
+    db: {schema: 'nocendland'},
+  })
   readonly storageBucket = 'nocendland'
 }

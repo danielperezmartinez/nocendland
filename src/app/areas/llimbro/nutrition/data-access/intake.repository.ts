@@ -6,7 +6,7 @@ import {NutritionIntake, NutritionIntakeWithIngredient} from "@areas/llimbro/nut
 import {Database} from '@platform/supabase/database.types';
 import {formatDateForDatabase} from '@shared/utilities/date.utils';
 
-type NutritionIntakeInsert = Database['public']['Tables']['nutrition_intake']['Insert']
+type NutritionIntakeInsert = Database['nocendland']['Tables']['nutrition_intake']['Insert']
 
 @Injectable()
 export class IntakeRepository {

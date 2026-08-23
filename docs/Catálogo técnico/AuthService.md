@@ -7,8 +7,8 @@ Estado: "Vigente"
 Ámbito: "Aplicación"
 Fuente: "src/app/platform/auth/auth.service.ts"
 Entrada pública: "@platform/auth/auth.service"
-Resumen: "Encapsula Supabase Auth, expone el usuario como Signal y coordina OAuth, sesión y cierre de sesión."
-Última modificación: "2026-08-22T14:00:00+02:00"
+Resumen: "Encapsula Supabase Auth, expone el usuario como Signal, coordina OAuth y sesión, y crea bajo RLS el perfil propio de Nocendland cuando todavía no existe."
+Última modificación: "2026-08-23T21:56:26+02:00"
 ---
 
 # AuthService

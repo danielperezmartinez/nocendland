@@ -1,6 +1,6 @@
 {
   "name": "nocendland",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": "24.x",
@@ -15,7 +15,7 @@
     "check:technical-catalog": "node scripts/check-technical-catalog.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "generate-types": "pnpm exec supabase gen types typescript --project-id hzwxzvupsctlyrqcdofi > ./src/app/platform/supabase/database.types.ts",
+    "generate-types": "pnpm exec supabase gen types typescript --project-id zckqbrwdgxohdymiwbfz --schema nocendland > ./src/app/platform/supabase/database.types.ts",
     "security:audit": "pnpm audit --audit-level high",
     "security:builds": "pnpm ignored-builds"
   },
