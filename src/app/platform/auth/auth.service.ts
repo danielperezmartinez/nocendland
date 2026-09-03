@@ -25,8 +25,13 @@ export class AuthService {
       return false
     }
 
-    await this.loadUserProfile(data.user)
-    return true
+    try {
+      await this.loadUserProfile(data.user)
+      return true
+    } catch {
+      await this.clearLocalSession()
+      return false
+    }
   }
 
   public exchangeCodeForSession(code: string) {
@@ -74,15 +79,16 @@ export class AuthService {
   }
 
   private async loadUserProfile(authUser: User): Promise<void> {
-    const {data, error} = await this.supabase.client
+    const {data: profiles, error} = await this.supabase.client
       .from('user')
       .select('*')
       .eq('id', authUser.id)
-      .maybeSingle()
+      .limit(1)
 
     if (error) throw error
-    if (data) {
-      this.userState.set(data)
+    const profile = profiles?.[0]
+    if (profile) {
+      this.userState.set(profile)
       return
     }
 
@@ -103,6 +109,15 @@ export class AuthService {
 
     if (creationError) throw creationError
     this.userState.set(createdProfile)
+  }
+
+  private async clearLocalSession(): Promise<void> {
+    this.userState.set(undefined)
+    try {
+      await this.supabase.client.auth.signOut({scope: 'local'})
+    } catch {
+      // La redirección al login debe continuar aunque Supabase no pueda completar la limpieza remota.
+    }
   }
 
   private authRedirectUrl(returnPath: string): string {

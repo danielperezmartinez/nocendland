@@ -34,7 +34,7 @@ describe('AuthService profiles', () => {
     const from = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          maybeSingle: vi.fn().mockResolvedValue({data: null, error: null}),
+          limit: vi.fn().mockResolvedValue({data: [], error: null}),
         }),
       }),
       upsert,
@@ -69,5 +69,41 @@ describe('AuthService profiles', () => {
       avatar_url: createdProfile.avatar_url,
     }, {onConflict: 'id'})
     expect(service.user()).toEqual(createdProfile)
+  })
+
+  it('clears only the local session when the authenticated profile cannot be recovered', async () => {
+    const signOut = vi.fn().mockResolvedValue({error: null})
+    const supabase = {
+      client: {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: {
+              user: {
+                id: '11111111-1111-4111-8111-111111111111',
+                email: 'user@example.com',
+                user_metadata: {},
+              },
+            },
+            error: null,
+          }),
+          signOut,
+        },
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue({
+                data: null,
+                error: {code: 'PGRST116', message: 'Profile is not accessible'},
+              }),
+            }),
+          }),
+        }),
+      },
+    }
+    const service = new AuthService(supabase as unknown as SupabaseClientService, {} as Router)
+
+    await expect(service.isAuthenticated()).resolves.toBe(false)
+    expect(signOut).toHaveBeenCalledWith({scope: 'local'})
+    expect(service.user()).toBeUndefined()
   })
 })

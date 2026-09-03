@@ -80,6 +80,17 @@ describe('authGuard', () => {
     expect(harness.routeNativeElement?.textContent).toContain('Auth')
   })
 
+  it('redirects to auth when session recovery throws unexpectedly', async () => {
+    isAuthenticated.mockRejectedValue(new Error('Session recovery failed'))
+    const harness = await RouterTestingHarness.create('/public')
+
+    await harness.navigateByUrl('/protected?source=recovery')
+
+    expect(protectedComponentCreations).toBe(0)
+    expect(router.url).toBe('/auth?returnUrl=%2Fprotected%3Fsource%3Drecovery')
+    expect(harness.routeNativeElement?.textContent).toContain('Auth')
+  })
+
   it('keeps the current route active while authentication is unresolved', async () => {
     let resolveAuthentication!: (authenticated: boolean) => void
     isAuthenticated.mockImplementation(() => new Promise<boolean>((resolve) => {
