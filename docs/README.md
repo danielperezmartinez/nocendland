@@ -102,7 +102,7 @@ Estas instrucciones son obligatorias aunque otro agente, herramienta o conversac
 
 ## Propósito del proyecto
 
-Nocendland es una aplicación personal orientada a monitorizar y ayudar al usuario en diferentes aspectos de su vida. El primer ámbito desarrollado es **Llimbro**, nombre jocoso derivado de «gym bro», que agrupa capacidades relacionadas con salud y entrenamiento. La aplicación incorpora además **Miscelánea**, destinada a utilidades que aún no justifican un dominio propio, y **Finanzas**, destinada a la economía personal; ambas permanecen inicialmente como áreas en desarrollo sin features definidas.
+Nocendland es una aplicación personal orientada a monitorizar y ayudar al usuario en diferentes aspectos de su vida. El primer ámbito desarrollado es **Llimbro**, nombre jocoso derivado de «gym bro», que agrupa capacidades relacionadas con salud y entrenamiento. La aplicación incorpora además **Miscelánea**, destinada a utilidades que aún no justifican un dominio propio; **Finanzas**, destinada a la economía personal; y **Datos**, destinada a reunir registros e información personal. Las tres permanecen inicialmente como áreas en desarrollo sin features definidas.
 
 ## Arquitectura objetivo
 
@@ -142,7 +142,8 @@ src/app/
     │   │   └── objectives/
     │   └── training/
     ├── miscellaneous/
-    └── finances/
+    ├── finances/
+    └── data/
 ```
 
 ### Responsabilidades
@@ -207,6 +208,7 @@ La jerarquía de URL refleja la jerarquía funcional:
 /llimbro/training/...
 /miscellaneous
 /finances/...
+/data/...
 ```
 
 Cuando se sustituya una ruta publicada, se mantendrá un redirect temporal desde la ruta anterior para proteger enlaces guardados y clientes PWA desactualizados.
@@ -220,7 +222,7 @@ Cuando se sustituya una ruta publicada, se mantendrá un redirect temporal desde
 
 ### Estado actual y siguientes límites
 
-La primera migración estructural ya refleja esta arquitectura: rutas standalone, shell, plataforma, shared y Llimbro dividido en Nutrición y Entrenamiento. Miscelánea y Finanzas existen como límites lazy con páginas temporales hasta que se definan sus primeras features. Miscelánea utiliza una identidad ámbar y terracota, flexible y lúdica; Finanzas utiliza azul petróleo y cian, con una expresión precisa y estructurada. Las URLs antiguas de Nutrición conservan redirects de compatibilidad. El acceso a datos específico ya no vive en servicios globales y las páginas escriben mediante la fachada de Nutrición.
+La primera migración estructural ya refleja esta arquitectura: rutas standalone, shell, plataforma, shared y Llimbro dividido en Nutrición y Entrenamiento. Miscelánea, Finanzas y Datos existen como límites lazy con páginas temporales hasta que se definan sus primeras features. Miscelánea utiliza una identidad ámbar y terracota, flexible y lúdica; Finanzas utiliza azul petróleo y cian, con una expresión precisa y estructurada; Datos utiliza violeta mineral y una expresión de archivo técnico. Las URLs antiguas de Nutrición conservan redirects de compatibilidad. El acceso a datos específico ya no vive en servicios globales y las páginas escriben mediante la fachada de Nutrición.
 
 La retirada de componentes Angular Material y la definición del lenguaje visual son un trabajo posterior e independiente. El presupuesto del bundle inicial también continúa como tarea de rendimiento; no se debe mezclar su resolución con cambios arquitectónicos sin medir antes el origen del peso.
 

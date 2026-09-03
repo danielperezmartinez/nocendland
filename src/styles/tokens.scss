@@ -192,6 +192,29 @@
   --area-accent-ink: oklch(0.94 0.04 214);
 }
 
+[data-area='data'] {
+  --area-accent: oklch(0.55 0.19 305);
+  --area-accent-strong: oklch(0.39 0.17 305);
+  --area-accent-soft: oklch(0.91 0.06 305);
+  --area-accent-ink: oklch(0.24 0.08 305);
+  --area-pattern: repeating-linear-gradient(0deg, transparent 0 1.2rem, var(--color-border) 1.25rem 1.3rem);
+  --area-pattern-size: auto;
+  --area-card-radius: var(--radius-sm) var(--radius-sm) var(--radius-xl) var(--radius-sm);
+  --area-card-tilt: 0deg;
+  --area-heading-tracking: -0.04em;
+  --area-tab-bar-radius: var(--radius-sm) var(--radius-sm) var(--radius-xl) var(--radius-sm);
+  --area-tab-active-radius: var(--radius-sm);
+  --area-tab-active-tilt: 0deg;
+  --area-tab-label-tracking: 0.04em;
+}
+
+:root[data-theme='dark'] [data-area='data'] {
+  --area-accent: oklch(0.76 0.15 305);
+  --area-accent-strong: oklch(0.85 0.11 305);
+  --area-accent-soft: oklch(0.3 0.08 305);
+  --area-accent-ink: oklch(0.95 0.04 305);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast: 0ms;

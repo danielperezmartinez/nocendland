@@ -1,0 +1,23 @@
+<main class="data-preview">
+  <section class="data-preview__card ui-card">
+    <div class="data-preview__index" aria-hidden="true">
+      <span>ARCHIVO</span>
+      <span>DAT · 001</span>
+    </div>
+
+    <div class="data-preview__mark" aria-hidden="true">
+      <svg class="ui-icon"><use href="icons/atlas-icons.svg#database"/></svg>
+    </div>
+
+    <p class="section-eyebrow">Tu información · un lugar propio</p>
+    <h1>Datos</h1>
+    <p>Estamos preparando un espacio para reunir tus registros, descubrir relaciones y convertir información dispersa en conocimiento útil.</p>
+    <app-badge [config]="developmentBadge"/>
+
+    <div class="data-preview__ruler" aria-hidden="true">
+      @for (mark of [1, 2, 3, 4, 5, 6]; track mark) {
+        <span>{{ mark.toString().padStart(2, '0') }}</span>
+      }
+    </div>
+  </section>
+</main>

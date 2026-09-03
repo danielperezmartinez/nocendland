@@ -29,6 +29,7 @@ describe('AreaThemeService', () => {
     expect(resolveAreaTheme('/llimbro/training/tracking?date=2026-08-22')).toBe('llimbro')
     expect(resolveAreaTheme('/miscellaneous')).toBe('miscellaneous')
     expect(resolveAreaTheme('/finances/overview#balance')).toBe('finances')
+    expect(resolveAreaTheme('/data')).toBe('data')
     expect(resolveAreaTheme('/auth')).toBe('home')
   })
 
@@ -43,5 +44,10 @@ describe('AreaThemeService', () => {
     TestBed.tick()
 
     expect(body.dataset['area']).toBe('finances')
+
+    navigationEvents.next(new NavigationEnd(2, '/finances/overview', '/data'))
+    TestBed.tick()
+
+    expect(body.dataset['area']).toBe('data')
   })
 })

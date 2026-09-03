@@ -4,12 +4,17 @@ import {toSignal} from '@angular/core/rxjs-interop'
 import {map} from 'rxjs'
 import {NavigationService} from './navigation.service'
 
-export type AreaTheme = 'home' | 'llimbro' | 'miscellaneous' | 'finances'
+export type AreaTheme = 'home' | 'llimbro' | 'miscellaneous' | 'finances' | 'data'
 
 export function resolveAreaTheme(url: string): AreaTheme {
   const primarySegment = url.split(/[?#]/, 1)[0].split('/').find(Boolean)
 
-  if (primarySegment === 'llimbro' || primarySegment === 'miscellaneous' || primarySegment === 'finances') {
+  if (
+    primarySegment === 'llimbro'
+    || primarySegment === 'miscellaneous'
+    || primarySegment === 'finances'
+    || primarySegment === 'data'
+  ) {
     return primarySegment
   }
   return 'home'

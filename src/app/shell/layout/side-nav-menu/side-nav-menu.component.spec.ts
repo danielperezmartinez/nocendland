@@ -27,6 +27,6 @@ describe('SideNavMenuComponent', () => {
       element.querySelectorAll<HTMLHeadingElement>('.atlas-navigation__eyebrow')
     ).map(heading => heading.textContent?.trim());
 
-    expect(headings).toEqual(['Llimbro', 'Finanzas', 'Miscelánea']);
+    expect(headings).toEqual(['Llimbro', 'Finanzas', 'Miscelánea', 'Datos']);
   });
 });

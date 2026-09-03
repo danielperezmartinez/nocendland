@@ -33,6 +33,10 @@ export const routes: Routes = [
         path: 'finances',
         loadChildren: () => import('@areas/finances/finances.routes').then(({FINANCES_ROUTES}) => FINANCES_ROUTES),
       },
+      {
+        path: 'data',
+        loadChildren: () => import('@areas/data/data.routes').then(({DATA_ROUTES}) => DATA_ROUTES),
+      },
       {path: 'nutrition', redirectTo: 'llimbro/nutrition', pathMatch: 'full'},
       {path: 'nutrition/ingredients', redirectTo: 'llimbro/nutrition/ingredients', pathMatch: 'full'},
       {path: 'nutrition/intakes', redirectTo: 'llimbro/nutrition/intakes', pathMatch: 'full'},

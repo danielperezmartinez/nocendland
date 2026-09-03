@@ -34,11 +34,18 @@ export class SideNavMenuComponent {
         {title: 'Abrir área', description: 'Ideas y utilidades que no encajan en otro lugar', icon: 'category', action: () => this.open('miscellaneous')},
       ],
     },
+    {
+      area: 'data',
+      title: 'Datos',
+      buttons: [
+        {title: 'Abrir área', description: 'Información, registros y conocimiento personal', icon: 'database', action: () => this.open('data')},
+      ],
+    },
   ]
 
   constructor(private navigation: NavigationService, private sideNav: SideNavService) {}
 
-  private async open(route: 'nutrition' | 'training' | 'miscellaneous' | 'finances', child?: 'exercises'): Promise<void> {
+  private async open(route: 'nutrition' | 'training' | 'miscellaneous' | 'finances' | 'data', child?: 'exercises'): Promise<void> {
     if (route === 'training') await this.navigation.to('training', child ?? 'exercises')
     else if (route === 'nutrition') await this.navigation.to('nutrition')
     else await this.navigation.to(route)
@@ -55,7 +62,7 @@ interface SideNavButton {
 }
 
 interface SideNavCategory {
-  area: 'llimbro' | 'miscellaneous' | 'finances'
+  area: 'llimbro' | 'miscellaneous' | 'finances' | 'data'
   title: string
   buttons: SideNavButton[]
 }

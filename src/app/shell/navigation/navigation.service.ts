@@ -26,6 +26,7 @@ export const APP_ROUTES = {
   },
   miscellaneous: {segments: ['miscellaneous'], children: {'': ''}},
   finances: {segments: ['finances'], children: {'': ''}},
+  data: {segments: ['data'], children: {'': ''}},
 } as const
 
 type AppRoute = keyof typeof APP_ROUTES
