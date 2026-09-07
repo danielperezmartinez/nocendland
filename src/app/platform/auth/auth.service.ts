@@ -1,6 +1,6 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, OnDestroy, signal} from '@angular/core';
 import {Router} from '@angular/router';
-import {OAuthResponse, User} from '@supabase/supabase-js';
+import {OAuthResponse, Subscription, User} from '@supabase/supabase-js';
 import {SupabaseClientService} from '@platform/supabase/supabase-client.service';
 import {Database} from '@platform/supabase/database.types';
 
@@ -8,28 +8,80 @@ export type AuthProvider = 'github' | 'google'
 export type AppUser = Database['nocendland']['Tables']['user']['Row']
 
 @Injectable({providedIn: 'root'})
-export class AuthService {
+export class AuthService implements OnDestroy {
   private readonly userState = signal<AppUser | undefined>(undefined)
+  private readonly authSubscription: Subscription
+  private sessionUserId: string | undefined
+  private sessionVersion = 0
+  private validationId = 0
+  private signingOut = false
+  private navigationCheck: {id: number; result: Promise<boolean>} | undefined
 
   readonly user = this.userState.asReadonly()
 
   constructor(
     private readonly supabase: SupabaseClientService,
     private readonly router: Router,
-  ) {}
+  ) {
+    this.authSubscription = this.supabase.client.auth.onAuthStateChange((event, session) => {
+      const nextUserId = session?.user.id
+      // Este callback es síncrono: no llama a Supabase mientras Auth mantiene su bloqueo.
+      if (event === 'SIGNED_OUT' || event === 'USER_UPDATED'
+        || (event === 'SIGNED_IN' && nextUserId !== this.sessionUserId)
+        || (this.sessionUserId !== undefined && this.sessionUserId !== nextUserId)) {
+        this.invalidateSession()
+      }
+      this.sessionUserId = nextUserId
+    }).data.subscription
+  }
 
-  public async isAuthenticated(): Promise<boolean> {
-    const {data, error} = await this.supabase.client.auth.getUser()
-    if (error || !data.user) {
-      this.userState.set(undefined)
-      return false
+  public ngOnDestroy(): void {
+    this.authSubscription.unsubscribe()
+    this.invalidateSession()
+  }
+
+  public isAuthenticated(navigationId?: number): Promise<boolean> {
+    if (this.signingOut) return Promise.resolve(false)
+    if (navigationId !== undefined && this.navigationCheck?.id === navigationId) {
+      return this.navigationCheck.result
     }
 
+    // Se conserva también el resultado resuelto: los guards anidados se ejecutan en serie.
+    // Una navegación diferente siempre inicia una nueva validación remota.
+    const result = this.validateUser()
+    this.navigationCheck = navigationId === undefined ? undefined : {id: navigationId, result}
+    return result
+  }
+
+  private async validateUser(): Promise<boolean> {
+    const validationId = ++this.validationId
+    const sessionVersion = this.sessionVersion
+    const isCurrent = () => validationId === this.validationId && sessionVersion === this.sessionVersion
+
     try {
-      await this.loadUserProfile(data.user)
+      const {data, error} = await this.supabase.client.auth.getUser()
+      if (!isCurrent()) return false
+      if (error || !data.user) {
+        this.invalidateSession()
+        return false
+      }
+
+      this.sessionUserId = data.user.id
+      if (this.userState()?.id === data.user.id) return true
+      this.userState.set(undefined)
+
+      try {
+        const profile = await this.loadUserProfile(data.user, isCurrent)
+        if (!isCurrent() || !profile) return false
+        this.userState.set(profile)
+      } catch {
+        // Una respuesta antigua nunca debe cerrar una sesión más reciente.
+        if (isCurrent()) await this.clearLocalSession()
+        return false
+      }
       return true
     } catch {
-      await this.clearLocalSession()
+      if (isCurrent()) this.invalidateSession()
       return false
     }
   }
@@ -47,11 +99,15 @@ export class AuthService {
   }
 
   public async signOut(): Promise<void> {
-    const {error} = await this.supabase.client.auth.signOut()
-    if (error) throw error
-
-    this.userState.set(undefined)
-    await this.router.navigateByUrl('/auth')
+    this.signingOut = true
+    this.invalidateSession()
+    try {
+      const {error} = await this.supabase.client.auth.signOut()
+      if (error) throw error
+      await this.router.navigateByUrl('/auth')
+    } finally {
+      this.signingOut = false
+    }
   }
 
   public requireUserId(): string {
@@ -78,18 +134,18 @@ export class AuthService {
     })
   }
 
-  private async loadUserProfile(authUser: User): Promise<void> {
+  private async loadUserProfile(authUser: User, isCurrent: () => boolean): Promise<AppUser | undefined> {
     const {data: profiles, error} = await this.supabase.client
       .from('user')
       .select('*')
       .eq('id', authUser.id)
       .limit(1)
 
+    if (!isCurrent()) return undefined
     if (error) throw error
     const profile = profiles?.[0]
     if (profile) {
-      this.userState.set(profile)
-      return
+      return profile
     }
 
     if (!authUser.email) throw new Error('The authenticated user has no email')
@@ -108,15 +164,24 @@ export class AuthService {
       .single()
 
     if (creationError) throw creationError
-    this.userState.set(createdProfile)
+    return createdProfile
+  }
+
+  private invalidateSession(): void {
+    this.sessionVersion += 1
+    this.navigationCheck = undefined
+    this.userState.set(undefined)
   }
 
   private async clearLocalSession(): Promise<void> {
-    this.userState.set(undefined)
+    this.signingOut = true
+    this.invalidateSession()
     try {
       await this.supabase.client.auth.signOut({scope: 'local'})
     } catch {
       // La redirección al login debe continuar aunque Supabase no pueda completar la limpieza remota.
+    } finally {
+      this.signingOut = false
     }
   }
 

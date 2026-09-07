@@ -8,7 +8,7 @@ export const authGuard: CanActivateChildFn = async (childRoute, state) => {
 
   let authenticated = false
   try {
-    authenticated = await auth.isAuthenticated()
+    authenticated = await auth.isAuthenticated(router.currentNavigation()?.id)
   } catch {
     // Un fallo de recuperación no debe cancelar la navegación inicial y dejar la aplicación vacía.
   }

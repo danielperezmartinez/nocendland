@@ -178,6 +178,7 @@ src/app/
 
 - `AuthService` encapsula Supabase Auth y expone el perfil autenticado como Signal de solo lectura.
 - El acceso a la shell está protegido por un guard que valida el usuario con Supabase y devuelve un `UrlTree` hacia `/auth` cuando no existe sesión válida.
+- Cada navegación protegida realiza una validación remota con `getUser()`; los guards de sus rutas anidadas comparten el resultado mediante el identificador de navegación del Router. No se reutiliza la autenticación entre navegaciones. El perfil del mismo usuario se conserva en memoria y se invalida al cerrar o cambiar de sesión, recibir `USER_UPDATED` o fallar la validación; las respuestas antiguas no pueden restaurarlo. Las políticas RLS siguen autorizando el acceso a datos en Supabase.
 - El inicio de sesión OAuth admite GitHub y Google. La URL de callback se construye con `location.origin`, de modo que el mismo código funciona en local y producción.
 - Supabase debe mantener autorizadas tanto la URL local de callback como las URLs desplegadas en Vercel. Esta allowlist es configuración externa y no debe sustituirse por URLs de producción fijadas en el código.
 - El callback intercambia el código PKCE por una sesión, vuelve a validar el usuario y solo entonces permite entrar en la aplicación.

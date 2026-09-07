@@ -7,8 +7,8 @@ Estado: "Vigente"
 Ámbito: "Aplicación"
 Fuente: "src/app/platform/auth/auth.guard.ts"
 Entrada pública: "@platform/auth/auth.guard"
-Resumen: "Protege la shell validando la sesión y devuelve un UrlTree seguro hacia autenticación cuando procede."
-Última modificación: "2026-08-22T14:00:00+02:00"
+Resumen: "Protege la shell validando remotamente cada navegación; pasa su identificador a AuthService para compartir la comprobación entre guards y devuelve un UrlTree seguro hacia autenticación cuando procede."
+Última modificación: "2026-09-07"
 ---
 
 # authGuard
