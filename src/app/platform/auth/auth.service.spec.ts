@@ -7,7 +7,8 @@ import {SupabaseClientService} from '@platform/supabase/supabase-client.service'
 import {AppUser, AuthService} from './auth.service'
 import {authGuard} from './auth.guard'
 
-function authSubscription() {
+function authSubscription(callback: (event: AuthChangeEvent, session: Session | null) => void) {
+  callback('INITIAL_SESSION', null)
   return {data: {subscription: {unsubscribe: vi.fn()}}}
 }
 
@@ -23,7 +24,7 @@ function deferred<T>() {
   return {promise, resolve}
 }
 
-function createBackend() {
+function createBackend(emitInitialSession = true) {
   let listener!: (event: AuthChangeEvent, session: Session | null) => void
   const unsubscribe = vi.fn()
   const getUser = vi.fn().mockResolvedValue({data: {user: remoteUser}, error: null})
@@ -35,6 +36,7 @@ function createBackend() {
     getUser, signOut,
     onAuthStateChange: vi.fn((callback: typeof listener) => {
       listener = callback
+      if (emitInitialSession) listener('INITIAL_SESSION', null)
       return {data: {subscription: {unsubscribe}}}
     }),
   }, from}} as unknown as SupabaseClientService
@@ -61,7 +63,7 @@ describe('AuthService navigation and profile reuse', () => {
     backend.getUser.mockReturnValue(response.promise)
     const first = service.isAuthenticated(1)
     const second = service.isAuthenticated(1)
-    expect(backend.getUser).toHaveBeenCalledOnce()
+    await vi.waitFor(() => expect(backend.getUser).toHaveBeenCalledOnce())
     response.resolve({data: {user: remoteUser}, error: null})
     expect(await Promise.all([first, second])).toEqual([true, true])
     await expect(service.isAuthenticated(1)).resolves.toBe(true)
@@ -74,6 +76,35 @@ describe('AuthService navigation and profile reuse', () => {
     await expect(service.isAuthenticated(2)).resolves.toBe(true)
     expect(backend.getUser).toHaveBeenCalledTimes(2)
     expect(backend.readProfile).toHaveBeenCalledOnce()
+  })
+
+  it('waits for restored session events and shares the initial navigation check', async () => {
+    service.ngOnDestroy()
+    backend = createBackend(false)
+    service = new AuthService(backend.supabase, {} as Router)
+    const first = service.isAuthenticated(1)
+    backend.emit('SIGNED_IN', remoteUser)
+    const second = service.isAuthenticated(1)
+    expect(backend.getUser).not.toHaveBeenCalled()
+    expect(service.user()).toBeUndefined()
+    backend.emit('INITIAL_SESSION', remoteUser)
+    expect(await Promise.all([first, second])).toEqual([true, true])
+    await expect(service.isAuthenticated(1)).resolves.toBe(true)
+    expect(backend.getUser).toHaveBeenCalledOnce()
+    expect(backend.readProfile).toHaveBeenCalledOnce()
+  })
+
+  it('rejects an initial check if sign-out occurs before restoration finishes', async () => {
+    service.ngOnDestroy()
+    backend = createBackend(false)
+    service = new AuthService(backend.supabase, {} as Router)
+    const check = service.isAuthenticated(1)
+    backend.emit('SIGNED_IN', remoteUser)
+    backend.emit('SIGNED_OUT', null)
+    backend.emit('INITIAL_SESSION', null)
+    await expect(check).resolves.toBe(false)
+    expect(backend.getUser).not.toHaveBeenCalled()
+    expect(service.user()).toBeUndefined()
   })
 
   it('never reuses authentication outside a navigation', async () => {

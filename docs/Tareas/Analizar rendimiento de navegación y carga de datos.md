@@ -1,7 +1,7 @@
 ---
 Nombre: Analizar rendimiento de navegación y carga de datos
 Estado: Hecha
-Resumen: Auditoría completada e implementada la validación remota única por navegación con reutilización del perfil; 158 pruebas y build correctos; las mejoras de imágenes, Finanzas e historial quedan pendientes.
+Resumen: Validación remota única por navegación y reutilización del perfil implementadas; corregida la regresión de login al restaurar la PWA con pruebas del SDK real; 164 pruebas y build correctos; las otras optimizaciones siguen pendientes.
 Decisiones: Mantener getUser remoto por navegación sin vigencia entre recorridos; reutilizar solo el perfil del mismo usuario e invalidar cambios de sesión y respuestas antiguas; el resto de optimizaciones permanece propuesto y el JavaScript se sigue en Reducir bundle inicial.
 Bloqueada: []
 Fecha de creación: 2026-09-07
@@ -30,6 +30,17 @@ La instalación se ha sincronizado correctamente con `pnpm install --frozen-lock
 - `pnpm run build --stats-json`: correcto. Bundle inicial total **589,08 kB**, transferencia estimada **147,21 kB**; permanecen avisos de presupuesto inicial y estilos de componentes. No se atribuye una reducción de bytes a este cambio sin una medición previa comparable.
 - Revisión zoneless: el perfil sigue siendo un Signal privado expuesto mediante `asReadonly()`; el callback de Auth es síncrono y no llama a Supabase bajo su bloqueo. La deduplicación y los contadores son coordinación interna de peticiones, sin estado reactivo duplicado.
 - No se ha desplegado ni medido la latencia en el móvil. Las otras optimizaciones siguen pendientes.
+
+## Regresión al restaurar la PWA
+
+Tras desplegar por su cuenta, el usuario confirma la mejora de navegación, pero informa de login repetido al actualizar y reabrir la PWA. El SDK 2.111.0 emite `SIGNED_IN` durante `_recoverAndRefresh()` al recuperar una sesión persistida; la primera validación podía capturar la versión de sesión antes de ese evento e interpretarse después como obsoleta. Se reabre esta tarea para corregir el arranque conservando la validación remota y añadir pruebas con el SDK real y almacenamiento persistido simulado.
+
+- Se reprodujo antes de modificar el servicio: la prueba de arranques consecutivos con el SDK real devolvió `false` para una sesión guardada válida; falló 1 de los 4 casos nuevos.
+- `AuthService` espera `INITIAL_SESSION` antes de validar remotamente. El primer `SIGNED_IN` de recuperación establece la identidad inicial y no invalida la navegación pendiente. Los cambios posteriores de cuenta, logout y respuestas antiguas siguen protegidos.
+- La persistencia y renovación automática ya estaban activas por defecto en el cliente de Supabase; no se cambian ni se añaden copias manuales de tokens o claves de almacenamiento.
+- Las nuevas pruebas usan `createClient` real, con transporte HTTP y almacenamiento aislados de producción. Cubren reabrir dos veces conservando la sesión, renovar un token de acceso caducado con el refresh token persistido, rechazo remoto y ausencia de sesión. Comprueban una validación remota por navegación y una carga de perfil por arranque.
+- Se añaden pruebas de restauración pendiente y logout durante el arranque. Las pruebas específicas de autenticación pasan: **5 archivos y 41 casos**. No se ha probado directamente el teléfono ni se ha desplegado la corrección.
+- Verificación final: `pnpm test --watch=false`, **51 archivos y 164 pruebas correctas**; `pnpm run build`, correcto con los avisos de presupuesto ya conocidos (589,38 kB iniciales y 147,27 kB de transferencia estimada). Se mantiene el estado mediante Signals y el callback de Auth continúa síncrono. La instalación se resincronizó con el lockfile sin actualizar dependencias.
 
 ## Relacionadas
 

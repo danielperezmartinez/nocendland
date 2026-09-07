@@ -11,6 +11,11 @@ export type AppUser = Database['nocendland']['Tables']['user']['Row']
 export class AuthService implements OnDestroy {
   private readonly userState = signal<AppUser | undefined>(undefined)
   private readonly authSubscription: Subscription
+  private initialSessionLoaded = false
+  private resolveInitialSession!: () => void
+  private readonly initialSessionReady = new Promise<void>(resolve => {
+    this.resolveInitialSession = resolve
+  })
   private sessionUserId: string | undefined
   private sessionVersion = 0
   private validationId = 0
@@ -27,17 +32,22 @@ export class AuthService implements OnDestroy {
       const nextUserId = session?.user.id
       // Este callback es síncrono: no llama a Supabase mientras Auth mantiene su bloqueo.
       if (event === 'SIGNED_OUT' || event === 'USER_UPDATED'
-        || (event === 'SIGNED_IN' && nextUserId !== this.sessionUserId)
+        || (this.initialSessionLoaded && event === 'SIGNED_IN' && nextUserId !== this.sessionUserId)
         || (this.sessionUserId !== undefined && this.sessionUserId !== nextUserId)) {
         this.invalidateSession()
       }
       this.sessionUserId = nextUserId
+      if (event === 'INITIAL_SESSION') {
+        this.initialSessionLoaded = true
+        this.resolveInitialSession()
+      }
     }).data.subscription
   }
 
   public ngOnDestroy(): void {
     this.authSubscription.unsubscribe()
     this.invalidateSession()
+    this.resolveInitialSession()
   }
 
   public isAuthenticated(navigationId?: number): Promise<boolean> {
@@ -59,6 +69,10 @@ export class AuthService implements OnDestroy {
     const isCurrent = () => validationId === this.validationId && sessionVersion === this.sessionVersion
 
     try {
+      // Supabase también emite SIGNED_IN al recuperar la sesión persistida.
+      // Esperamos su estado inicial antes de validar; la restauración no es un cambio de cuenta.
+      await this.initialSessionReady
+      if (!isCurrent()) return false
       const {data, error} = await this.supabase.client.auth.getUser()
       if (!isCurrent()) return false
       if (error || !data.user) {
