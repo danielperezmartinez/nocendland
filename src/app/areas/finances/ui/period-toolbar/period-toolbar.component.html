@@ -1,0 +1,10 @@
+<div class="finance-period-toolbar ui-card">
+  <div class="finance-period-picker">
+    <button class="ui-icon-button" type="button" aria-label="Periodo anterior" [disabled]="store.loading()" (click)="store.previousPeriod()">←</button>
+    <strong>{{ store.periodLabel() }}</strong>
+    <button class="ui-icon-button" type="button" aria-label="Periodo siguiente" [disabled]="store.loading()" (click)="store.nextPeriod()">→</button>
+  </div>
+  <button class="ui-icon-button" type="button" aria-label="Configurar periodo y moneda" (click)="openSettings()">
+    <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#settings"/></svg>
+  </button>
+</div>

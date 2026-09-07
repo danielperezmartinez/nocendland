@@ -1,0 +1,93 @@
+<main class="finance-page summary-page">
+  <header class="finance-page-heading">
+    <div>
+      <p class="section-eyebrow">Finanzas · visión del periodo</p>
+      <h1>Resumen</h1>
+      <span>Tu mes, convertido en una lectura rápida y accionable.</span>
+    </div>
+    <button class="ui-button" type="button" (click)="addMovement()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+      Movimiento
+    </button>
+  </header>
+
+  <app-finance-period-toolbar/>
+
+  @if (store.loading()) {
+    <div class="finance-loading"><span class="ui-spinner" role="status" aria-label="Cargando finanzas"></span></div>
+  } @else if (store.error()) {
+    <section class="finance-empty ui-card">
+      <h2>No pudimos abrir el periodo</h2>
+      <p>{{ store.error() }}</p>
+      <button class="ui-button" type="button" (click)="store.reload()">Reintentar</button>
+    </section>
+  } @else {
+    <section class="summary-metrics" aria-label="Indicadores del periodo">
+      <article class="summary-metric summary-metric--primary ui-card">
+        <span>Disponible</span>
+        <strong class="finance-data">{{ store.formatMoney(store.summary().available) }}</strong>
+        <small>Saldo inicial + ingresos previstos</small>
+      </article>
+      <article class="summary-metric ui-card">
+        <span>Gastado</span>
+        <strong class="finance-data">{{ store.formatMoney(store.summary().spent) }}</strong>
+        <small>Gastos completados</small>
+      </article>
+      <article class="summary-metric ui-card">
+        <span>Reservado</span>
+        <strong class="finance-data">{{ store.formatMoney(store.summary().reserved) }}</strong>
+        <small>Pendiente de salir</small>
+      </article>
+      <article class="summary-metric ui-card">
+        <span>Remanente previsto</span>
+        <strong class="finance-data">{{ store.formatMoney(store.summary().projectedRemainder) }}</strong>
+        <small>Después del plan completo</small>
+      </article>
+    </section>
+
+    <section class="summary-grid">
+      <article class="summary-distribution ui-card">
+        <header>
+          <div>
+            <p class="section-eyebrow">Plan de salida</p>
+            <h2>Distribución mensual</h2>
+          </div>
+          <span class="finance-data">{{ store.formatMoney(store.summary().plannedExpense + store.summary().plannedSaving) }}</span>
+        </header>
+        <div class="summary-distribution__bar" aria-hidden="true">
+          @for (item of distribution(); track item.label) {
+            <span [class.summary-distribution__saving]="item.label === 'Ahorro'" [style.width.%]="item.percentage"></span>
+          }
+        </div>
+        <div class="summary-distribution__legend">
+          @for (item of distribution(); track item.label) {
+            <div><span>{{ item.label }}</span><strong class="finance-data">{{ store.formatMoney(item.value) }}</strong></div>
+          }
+        </div>
+      </article>
+
+      <article class="summary-upcoming ui-card">
+        <header>
+          <div>
+            <p class="section-eyebrow">Próximos</p>
+            <h2>En el radar</h2>
+          </div>
+          <span>{{ upcoming().length }}</span>
+        </header>
+        <div class="summary-upcoming__list">
+          @for (movement of upcoming(); track movement.id) {
+            <div>
+              <time class="finance-data">{{ store.formatDate(movement.scheduled_on) }}</time>
+              <span><strong>{{ movement.name }}</strong><small>{{ movement.categoryName }}</small></span>
+              <strong class="finance-data" [class.finance-flow--income]="movement.flowType === 'income'">
+                {{ movement.flowType === 'income' ? '+' : '−' }}{{ store.formatMoney(movement.amount) }}
+              </strong>
+            </div>
+          } @empty {
+            <p class="finance-muted">No hay movimientos pendientes en este periodo.</p>
+          }
+        </div>
+      </article>
+    </section>
+  }
+</main>

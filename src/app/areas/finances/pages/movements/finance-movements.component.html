@@ -1,0 +1,62 @@
+<main class="finance-page movements-page">
+  <header class="finance-page-heading">
+    <div>
+      <p class="section-eyebrow">Finanzas · libro personal</p>
+      <h1>Movimientos</h1>
+      <span>Ingresos, gastos y ahorro en una única línea temporal.</span>
+    </div>
+    <button class="ui-button" type="button" (click)="addMovement()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+      Nuevo
+    </button>
+  </header>
+
+  <app-finance-period-toolbar/>
+
+  <section class="movement-controls ui-card" aria-label="Filtrar movimientos">
+    <label class="movement-search">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#search"/></svg>
+      <span class="sr-only">Buscar movimientos</span>
+      <input [value]="query()" placeholder="Buscar concepto o categoría" (input)="updateQuery($event)">
+    </label>
+    <div class="ui-segmented-control">
+      @for (item of filters; track item.id) {
+        <button type="button" [attr.aria-pressed]="filter() === item.id" (click)="filter.set(item.id)">{{ item.label }}</button>
+      }
+    </div>
+  </section>
+
+  @if (store.loading()) {
+    <div class="finance-loading"><span class="ui-spinner" role="status" aria-label="Cargando movimientos"></span></div>
+  } @else {
+    <section class="movement-ledger ui-card">
+      <header class="movement-ledger__header">
+        <span>Fecha</span><span>Concepto</span><span>Estado</span><span>Importe</span><span></span>
+      </header>
+      @for (movement of visibleMovements(); track movement.id) {
+        <article class="movement-row">
+          <time class="finance-data">{{ store.formatDate(movement.scheduled_on) }}</time>
+          <span class="movement-row__concept">
+            <strong>{{ movement.name }}</strong>
+            <small>{{ movement.categoryName }}{{ movement.recurring_item_id ? ' · recurrente' : '' }}</small>
+          </span>
+          <span class="finance-status" [class]="'finance-status finance-status--' + movement.status">
+            {{ movement.status === 'completed' ? 'Completado' : movement.status === 'pending' ? 'Pendiente' : 'Cancelado' }}
+          </span>
+          <strong class="movement-row__amount finance-data" [class.finance-flow--income]="movement.flowType === 'income'" [class.finance-flow--saving]="movement.flowType === 'saving'">
+            {{ movement.flowType === 'income' ? '+' : '−' }}{{ store.formatMoney(movement.amount) }}
+          </strong>
+          <button class="ui-icon-button" type="button" [attr.aria-label]="'Editar ' + movement.name" (click)="editMovement(movement)">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#edit"/></svg>
+          </button>
+        </article>
+      } @empty {
+        <div class="finance-empty">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#account_balance_wallet"/></svg>
+          <h2>El libro está limpio</h2>
+          <p>Crea el primer movimiento o cambia los filtros.</p>
+        </div>
+      }
+    </section>
+  }
+</main>

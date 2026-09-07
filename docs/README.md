@@ -102,7 +102,7 @@ Estas instrucciones son obligatorias aunque otro agente, herramienta o conversac
 
 ## Propósito del proyecto
 
-Nocendland es una aplicación personal orientada a monitorizar y ayudar al usuario en diferentes aspectos de su vida. El primer ámbito desarrollado es **Llimbro**, nombre jocoso derivado de «gym bro», que agrupa capacidades relacionadas con salud y entrenamiento. La aplicación incorpora además **Miscelánea**, destinada a utilidades que aún no justifican un dominio propio; **Finanzas**, destinada a la economía personal; y **Datos**, destinada a reunir registros e información personal. Las tres permanecen inicialmente como áreas en desarrollo sin features definidas.
+Nocendland es una aplicación personal orientada a monitorizar y ayudar al usuario en diferentes aspectos de su vida. El primer ámbito desarrollado es **Llimbro**, nombre jocoso derivado de «gym bro», que agrupa capacidades relacionadas con salud y entrenamiento. La aplicación incorpora además **Miscelánea**, destinada a utilidades que aún no justifican un dominio propio; **Finanzas**, que ya ofrece control financiero personal por periodos; y **Datos**, destinada a reunir registros e información personal. Miscelánea y Datos permanecen inicialmente como áreas en desarrollo sin features definidas.
 
 ## Arquitectura objetivo
 
@@ -166,9 +166,12 @@ src/app/
 ### Datos y estado
 
 - Supabase es el backend administrado para base de datos, autenticación y almacenamiento de imágenes.
+- El backend productivo activo no es un proyecto Supabase llamado Nocendland: es el proyecto compartido `devappsdpm-db` (`zckqbrwdgxohdymiwbfz`), donde conviven varias aplicaciones separadas por esquemas. La migración y sus comprobaciones están documentadas en [[Tareas/Migrar Nocendland al Supabase compartido devappsdpm-db]].
+- Nocendland es propietario exclusivamente del esquema expuesto `nocendland` y del esquema interno no expuesto `nocendland_private`. Las migraciones, consultas, tipos, funciones, privilegios y políticas de esta aplicación deben quedar acotados a esos esquemas y no pueden modificar esquemas de otras aplicaciones, como `gift_card`.
+- Auth, Storage, Edge Functions, secretos, cuotas, conexiones y configuraciones de proyecto son recursos compartidos entre las aplicaciones de `devappsdpm-db`; cualquier cambio sobre ellos exige comprobar su impacto global. El proyecto Supabase antiguo llamado `nocendland` es legado y no es el backend activo del frontend.
 - `platform/supabase` crea un único cliente tipado y ofrece únicamente capacidades técnicas genéricas.
-- Las consultas de un dominio viven en los repositorios de `data-access` de su feature. Actualmente Nutrición contiene repositorios de alimentos, ingestas, objetivos y totales.
-- `NutritionStore`, proporcionado en el límite de ruta de Nutrición, actúa como fachada: conserva el estado Signal, coordina repositorios y expone operaciones de negocio a las páginas.
+- Las consultas de un dominio viven en los repositorios de `data-access` de su feature. Actualmente Nutrición contiene repositorios de alimentos, ingestas, objetivos y totales; Finanzas contiene repositorios de configuración, categorías, periodos, presupuestos, movimientos, recurrentes y objetivos.
+- `NutritionStore` y `FinanceStore`, proporcionados en los límites de ruta de sus respectivas features, actúan como fachadas: conservan el estado Signal, coordinan repositorios y exponen operaciones de negocio a las páginas.
 - Los tipos generados de la base de datos viven en `platform/supabase/database.types.ts`. Se regeneran con `pnpm run generate-types`; no se corrigen manualmente nombres heredados del esquema remoto.
 
 ### Autenticación
@@ -222,7 +225,7 @@ Cuando se sustituya una ruta publicada, se mantendrá un redirect temporal desde
 
 ### Estado actual y siguientes límites
 
-La primera migración estructural ya refleja esta arquitectura: rutas standalone, shell, plataforma, shared y Llimbro dividido en Nutrición y Entrenamiento. Miscelánea, Finanzas y Datos existen como límites lazy con páginas temporales hasta que se definan sus primeras features. Miscelánea utiliza una identidad ámbar y terracota, flexible y lúdica; Finanzas utiliza azul petróleo y cian, con una expresión precisa y estructurada; Datos utiliza violeta mineral y una expresión de archivo técnico. Las URLs antiguas de Nutrición conservan redirects de compatibilidad. El acceso a datos específico ya no vive en servicios globales y las páginas escriben mediante la fachada de Nutrición.
+La arquitectura ya se refleja en rutas standalone, shell, plataforma, shared y áreas lazy. Llimbro se divide en Nutrición y Entrenamiento; Finanzas contiene su primera feature completa con Resumen, Movimientos, Recurrentes, Plan mensual y Objetivos; Miscelánea y Datos mantienen páginas temporales. Miscelánea utiliza una identidad ámbar y terracota, flexible y lúdica; Finanzas utiliza azul petróleo y cian, con una expresión precisa y estructurada; Datos utiliza violeta mineral y una expresión de archivo técnico. Las URLs antiguas de Nutrición conservan redirects de compatibilidad. El acceso a datos específico vive en repositorios de cada feature y las páginas escriben mediante sus fachadas.
 
 La retirada de componentes Angular Material y la definición del lenguaje visual son un trabajo posterior e independiente. El presupuesto del bundle inicial también continúa como tarea de rendimiento; no se debe mezclar su resolución con cambios arquitectónicos sin medir antes el origen del peso.
 

@@ -1,0 +1,8 @@
+<section
+  class="finance-layout"
+  [appFeatureSwipeNavigation]="tabs"
+  [featureSwipeActiveId]="activeTabId()"
+>
+  <router-outlet/>
+  <app-feature-tab-bar [items]="tabs" [activeId]="activeTabId()" label="Navegación de Finanzas"/>
+</section>

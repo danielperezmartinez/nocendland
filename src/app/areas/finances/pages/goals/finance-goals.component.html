@@ -1,0 +1,54 @@
+<main class="finance-page goals-page">
+  <header class="finance-page-heading">
+    <div>
+      <p class="section-eyebrow">Finanzas · ahorro con destino</p>
+      <h1>Objetivos</h1>
+      <span>Convierte una cantidad abstracta en una ruta visible.</span>
+    </div>
+    <button class="ui-button" type="button" (click)="addGoal()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+      Objetivo
+    </button>
+  </header>
+
+  <app-finance-period-toolbar/>
+
+  @if (store.loading()) {
+    <div class="finance-loading"><span class="ui-spinner" role="status" aria-label="Cargando objetivos"></span></div>
+  } @else {
+    <section class="goal-grid">
+      @for (goal of store.goalViews(); track goal.id) {
+        <article class="goal-card ui-card">
+          <header>
+            <span class="finance-status" [class.finance-status--completed]="goal.status === 'completed'">{{ goal.status === 'completed' ? 'Completado' : 'En marcha' }}</span>
+            <button class="ui-icon-button" type="button" [attr.aria-label]="'Editar ' + goal.name" (click)="editGoal(goal)">
+              <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#edit"/></svg>
+            </button>
+          </header>
+          <div>
+            <p class="section-eyebrow">Meta personal</p>
+            <h2>{{ goal.name }}</h2>
+            @if (goal.target_date) { <p>Objetivo para {{ store.formatDate(goal.target_date) }}</p> }
+          </div>
+          <div class="goal-card__amount">
+            <strong class="finance-data">{{ store.formatMoney(goal.currentAmount) }}</strong>
+            <span class="finance-data">de {{ store.formatMoney(goal.target_amount) }}</span>
+          </div>
+          <div class="ui-progress" [attr.aria-label]="goal.progress.toFixed(0) + '% completado'" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="goal.progress">
+            <span [style.width.%]="goal.progress"></span>
+          </div>
+          <footer>
+            <strong class="finance-data">{{ goal.progress | number:'1.0-0' }}%</strong>
+            <button class="ui-button ui-button--quiet" type="button" (click)="contribute(goal)">Añadir aportación</button>
+          </footer>
+        </article>
+      } @empty {
+        <div class="finance-empty ui-card">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#account_balance_wallet"/></svg>
+          <h2>Aún no hay una meta</h2>
+          <p>Crea un colchón, un viaje o cualquier objetivo que quieras hacer tangible.</p>
+        </div>
+      }
+    </section>
+  }
+</main>

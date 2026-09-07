@@ -10,10 +10,392 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   nocendland: {
     Tables: {
+      finance_budget_allocation: {
+        Row: {
+          category_id: number
+          created_at: string
+          id: number
+          id_user: string
+          notes: string | null
+          period_id: number
+          planned_amount: number
+          updated_at: string
+        }
+        Insert: {
+          category_id: number
+          created_at?: string
+          id?: number
+          id_user: string
+          notes?: string | null
+          period_id: number
+          planned_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          category_id?: number
+          created_at?: string
+          id?: number
+          id_user?: string
+          notes?: string | null
+          period_id?: number
+          planned_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_budget_allocation_category_owner_fkey"
+            columns: ["category_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_category"
+            referencedColumns: ["id", "id_user"]
+          },
+          {
+            foreignKeyName: "finance_budget_allocation_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_budget_allocation_period_owner_fkey"
+            columns: ["period_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_period"
+            referencedColumns: ["id", "id_user"]
+          },
+        ]
+      }
+      finance_category: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          flow_type: string
+          id: number
+          id_user: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          flow_type: string
+          id?: number
+          id_user: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          flow_type?: string
+          id?: number
+          id_user?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_category_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_goal: {
+        Row: {
+          created_at: string
+          id: number
+          id_user: string
+          initial_amount: number
+          name: string
+          notes: string | null
+          status: string
+          target_amount: number
+          target_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          id_user: string
+          initial_amount?: number
+          name: string
+          notes?: string | null
+          status?: string
+          target_amount: number
+          target_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          id_user?: string
+          initial_amount?: number
+          name?: string
+          notes?: string | null
+          status?: string
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_goal_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_movement: {
+        Row: {
+          amount: number
+          category_id: number
+          created_at: string
+          goal_id: number | null
+          id: number
+          id_user: string
+          name: string
+          notes: string | null
+          occurred_on: string | null
+          period_id: number
+          recurrence_due_on: string | null
+          recurring_item_id: number | null
+          scheduled_on: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category_id: number
+          created_at?: string
+          goal_id?: number | null
+          id?: number
+          id_user: string
+          name: string
+          notes?: string | null
+          occurred_on?: string | null
+          period_id: number
+          recurrence_due_on?: string | null
+          recurring_item_id?: number | null
+          scheduled_on: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category_id?: number
+          created_at?: string
+          goal_id?: number | null
+          id?: number
+          id_user?: string
+          name?: string
+          notes?: string | null
+          occurred_on?: string | null
+          period_id?: number
+          recurrence_due_on?: string | null
+          recurring_item_id?: number | null
+          scheduled_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_movement_category_owner_fkey"
+            columns: ["category_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_category"
+            referencedColumns: ["id", "id_user"]
+          },
+          {
+            foreignKeyName: "finance_movement_goal_owner_fkey"
+            columns: ["goal_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_goal"
+            referencedColumns: ["id", "id_user"]
+          },
+          {
+            foreignKeyName: "finance_movement_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_movement_period_owner_fkey"
+            columns: ["period_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_period"
+            referencedColumns: ["id", "id_user"]
+          },
+          {
+            foreignKeyName: "finance_movement_recurring_item_owner_fkey"
+            columns: ["recurring_item_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_recurring_item"
+            referencedColumns: ["id", "id_user"]
+          },
+        ]
+      }
+      finance_period: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          ends_on: string
+          id: number
+          id_user: string
+          opening_balance: number
+          starts_on: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          ends_on: string
+          id?: number
+          id_user: string
+          opening_balance?: number
+          starts_on: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          ends_on?: string
+          id?: number
+          id_user?: string
+          opening_balance?: number
+          starts_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_period_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_recurring_item: {
+        Row: {
+          amount: number
+          archived_at: string | null
+          category_id: number
+          created_at: string
+          due_day: number
+          ends_on: string | null
+          goal_id: number | null
+          id: number
+          id_user: string
+          interval_months: number
+          name: string
+          notes: string | null
+          starts_on: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          archived_at?: string | null
+          category_id: number
+          created_at?: string
+          due_day: number
+          ends_on?: string | null
+          goal_id?: number | null
+          id?: number
+          id_user: string
+          interval_months?: number
+          name: string
+          notes?: string | null
+          starts_on: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          archived_at?: string | null
+          category_id?: number
+          created_at?: string
+          due_day?: number
+          ends_on?: string | null
+          goal_id?: number | null
+          id?: number
+          id_user?: string
+          interval_months?: number
+          name?: string
+          notes?: string | null
+          starts_on?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_recurring_item_category_owner_fkey"
+            columns: ["category_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_category"
+            referencedColumns: ["id", "id_user"]
+          },
+          {
+            foreignKeyName: "finance_recurring_item_goal_owner_fkey"
+            columns: ["goal_id", "id_user"]
+            isOneToOne: false
+            referencedRelation: "finance_goal"
+            referencedColumns: ["id", "id_user"]
+          },
+          {
+            foreignKeyName: "finance_recurring_item_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_settings: {
+        Row: {
+          created_at: string
+          currency_code: string
+          id_user: string
+          period_start_day: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency_code?: string
+          id_user: string
+          period_start_day?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency_code?: string
+          id_user?: string
+          period_start_day?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_settings_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: true
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nutrition_ingredient: {
         Row: {
           calories_per_100: number | null
@@ -550,6 +932,26 @@ export type Database = {
         Args: { target_schedule_id: number }
         Returns: undefined
       }
+      ensure_finance_period: {
+        Args: { target_date?: string }
+        Returns: {
+          closed_at: string | null
+          created_at: string
+          ends_on: string
+          id: number
+          id_user: string
+          opening_balance: number
+          starts_on: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "finance_period"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       ensure_training_schedule: {
         Args: never
         Returns: {
@@ -578,6 +980,10 @@ export type Database = {
         }
         Returns: Json
       }
+      materialize_finance_period: {
+        Args: { target_period_id: number }
+        Returns: undefined
+      }
       save_training_schedule_catalog: {
         Args: { catalog_draft: Json; selected_key: string }
         Returns: Json
@@ -600,12 +1006,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -629,11 +1035,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -654,11 +1060,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -679,11 +1085,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -696,11 +1102,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

@@ -1,0 +1,13 @@
+:host { display: block; }
+.recurring-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-1) var(--space-4); padding: var(--space-4) var(--space-5); border-left: var(--space-2) solid var(--area-accent); }
+.recurring-summary > span { color: var(--color-text-muted); font-weight: 700; }
+.recurring-summary strong { grid-row: span 2; font-size: clamp(1.6rem, 4vw, 2.5rem); }
+.recurring-summary small { color: var(--color-text-muted); }
+.recurring-list { display: grid; gap: var(--space-3); }
+.recurring-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-4); padding: var(--space-4); }
+.recurring-card__marker { display: grid; width: 3rem; aspect-ratio: 1; place-items: center; border-radius: var(--radius-sm); background: var(--area-accent-soft); color: var(--area-accent-strong); }
+.recurring-card__body { min-width: 0; }
+.recurring-card__body h2 { margin: var(--space-2) 0 var(--space-1); font-size: var(--font-size-lg); }
+.recurring-card__body p { margin: 0; color: var(--color-text-muted); }
+.recurring-card__amounts { display: grid; justify-items: end; }
+@media (max-width: 42rem) { .recurring-summary { grid-template-columns: 1fr; } .recurring-summary strong { grid-row: auto; } .recurring-card { grid-template-columns: auto minmax(0, 1fr) auto; } .recurring-card__amounts { grid-column: 2; justify-items: start; } .recurring-card > .ui-icon-button { grid-column: 3; grid-row: 1 / span 2; } }

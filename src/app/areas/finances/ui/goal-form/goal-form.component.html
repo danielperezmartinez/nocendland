@@ -1,0 +1,43 @@
+<form class="finance-dialog" [formGroup]="form" (ngSubmit)="save()">
+  <header>
+    <div>
+      <p class="section-eyebrow">Ahorro con intención</p>
+      <h2>{{ editing ? 'Editar objetivo' : 'Nuevo objetivo' }}</h2>
+    </div>
+    <button class="ui-icon-button" type="button" aria-label="Cerrar" (click)="dialogRef.close()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+    </button>
+  </header>
+
+  <div class="finance-dialog__grid">
+    <label class="ui-field finance-dialog__wide">Nombre
+      <input class="ui-input" formControlName="name" autocomplete="off">
+    </label>
+    <label class="ui-field">Importe objetivo
+      <input class="ui-input finance-data" formControlName="targetAmount" type="number" min="0.01" step="0.01">
+    </label>
+    <label class="ui-field">Ya acumulado
+      <input class="ui-input finance-data" formControlName="initialAmount" type="number" min="0" step="0.01">
+    </label>
+    <label class="ui-field">Fecha objetivo · opcional
+      <input class="ui-input finance-data" formControlName="targetDate" type="date">
+    </label>
+    <label class="ui-field">Estado
+      <select class="ui-select" formControlName="status">
+        <option value="active">Activo</option>
+        <option value="completed">Completado</option>
+      </select>
+    </label>
+    <label class="ui-field finance-dialog__wide">Notas
+      <textarea class="ui-textarea" formControlName="notes" rows="3"></textarea>
+    </label>
+  </div>
+
+  @if (error) { <p class="finance-dialog__error" role="alert">{{ error }}</p> }
+  <footer>
+    @if (editing) {
+      <button class="ui-button ui-button--quiet ui-button--danger" type="button" [disabled]="store.saving()" (click)="archive()">Archivar</button>
+    } @else { <span></span> }
+    <button class="ui-button" type="submit" [disabled]="form.invalid || store.saving()">Guardar</button>
+  </footer>
+</form>

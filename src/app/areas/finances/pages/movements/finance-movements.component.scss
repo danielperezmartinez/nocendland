@@ -1,0 +1,15 @@
+:host { display: block; }
+.movement-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); }
+.movement-search { display: flex; min-width: min(24rem, 100%); align-items: center; gap: var(--space-2); padding-inline: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-round); background: var(--color-surface-elevated); }
+.movement-search input { width: 100%; min-height: var(--control-height-md); border: 0; outline: 0; background: transparent; color: var(--color-text); }
+.movement-ledger { overflow: hidden; }
+.movement-ledger__header, .movement-row { display: grid; grid-template-columns: 5rem minmax(12rem, 1fr) 7rem 9rem 3rem; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); }
+.movement-ledger__header { background: var(--color-surface-muted); color: var(--color-text-muted); font-size: var(--font-size-xs); font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.movement-row { border-top: 1px solid var(--color-border); }
+.movement-row:hover { background: color-mix(in oklch, var(--area-accent-soft) 34%, transparent); }
+.movement-row time { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.movement-row__concept { display: grid; min-width: 0; }
+.movement-row__concept strong, .movement-row__concept small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.movement-row__concept small { color: var(--color-text-muted); }
+.movement-row__amount { justify-self: end; }
+@media (max-width: 48rem) { .movement-controls { align-items: stretch; flex-direction: column; } .movement-search { min-width: 100%; } .ui-segmented-control { overflow-x: auto; flex-wrap: nowrap; } .movement-ledger__header { display: none; } .movement-row { grid-template-columns: 3.8rem minmax(0, 1fr) auto; gap: var(--space-2); } .movement-row .finance-status { grid-column: 2; } .movement-row__amount { grid-column: 3; grid-row: 1; } .movement-row .ui-icon-button { grid-column: 3; grid-row: 2; justify-self: end; } }

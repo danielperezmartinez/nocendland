@@ -1,0 +1,53 @@
+<main class="finance-page recurring-page">
+  <header class="finance-page-heading">
+    <div>
+      <p class="section-eyebrow">Finanzas · automatizaciones</p>
+      <h1>Recurrentes</h1>
+      <span>Normaliza pagos e ingresos periódicos sin perder el detalle.</span>
+    </div>
+    <button class="ui-button" type="button" (click)="addRecurring()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#add"/></svg>
+      Nuevo
+    </button>
+  </header>
+
+  <app-finance-period-toolbar/>
+
+  <section class="recurring-summary ui-card">
+    <span>Impacto mensual equivalente</span>
+    <strong class="finance-data">{{ store.formatMoney(monthlyTotal()) }}</strong>
+    <small>Gastos y ahorro normalizados al mes</small>
+  </section>
+
+  @if (store.loading()) {
+    <div class="finance-loading"><span class="ui-spinner" role="status" aria-label="Cargando recurrentes"></span></div>
+  } @else {
+    <section class="recurring-list">
+      @for (item of store.recurringViews(); track item.id) {
+        <article class="recurring-card ui-card">
+          <div class="recurring-card__marker" [class.finance-flow--income]="item.flowType === 'income'" [class.finance-flow--saving]="item.flowType === 'saving'">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#refresh"/></svg>
+          </div>
+          <div class="recurring-card__body">
+            <span class="finance-status">{{ item.categoryName }}</span>
+            <h2>{{ item.name }}</h2>
+            <p>{{ frequencyLabel(item.interval_months) }} · día {{ item.due_day }} · desde {{ store.formatDate(item.starts_on) }}</p>
+          </div>
+          <div class="recurring-card__amounts">
+            <strong class="finance-data">{{ store.formatMoney(item.amount) }}</strong>
+            <span class="finance-muted finance-data">{{ store.formatMoney(item.monthlyEquivalent) }}/mes</span>
+          </div>
+          <button class="ui-icon-button" type="button" [attr.aria-label]="'Editar ' + item.name" (click)="editRecurring(item)">
+            <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#edit"/></svg>
+          </button>
+        </article>
+      } @empty {
+        <div class="finance-empty ui-card">
+          <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#refresh"/></svg>
+          <h2>Sin automatizaciones</h2>
+          <p>Añade una nómina, alquiler, seguro o aportación periódica.</p>
+        </div>
+      }
+    </section>
+  }
+</main>

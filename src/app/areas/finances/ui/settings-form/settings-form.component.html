@@ -1,0 +1,27 @@
+<form class="finance-dialog" [formGroup]="form" (ngSubmit)="save()">
+  <header>
+    <div>
+      <p class="section-eyebrow">Preferencias</p>
+      <h2>Configurar Finanzas</h2>
+    </div>
+    <button class="ui-icon-button" type="button" aria-label="Cerrar" (click)="dialogRef.close()">
+      <svg class="ui-icon" aria-hidden="true"><use href="icons/atlas-icons.svg#close"/></svg>
+    </button>
+  </header>
+
+  <div class="finance-dialog__grid">
+    <label class="ui-field">Día de inicio del periodo
+      <input class="ui-input finance-data" formControlName="periodStartDay" type="number" min="1" max="31" step="1">
+    </label>
+    <label class="ui-field">Moneda
+      <input class="ui-input finance-data" formControlName="currencyCode" maxlength="3" autocomplete="off">
+    </label>
+  </div>
+
+  <p class="finance-muted">Si el día elegido no existe, se usa el último día del mes. Los periodos ya creados no cambian.</p>
+  @if (error) { <p class="finance-dialog__error" role="alert">{{ error }}</p> }
+  <footer>
+    <span></span>
+    <button class="ui-button" type="submit" [disabled]="form.invalid || store.saving()">Guardar</button>
+  </footer>
+</form>

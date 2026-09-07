@@ -1,0 +1,47 @@
+<main class="finance-page plan-page">
+  <header class="finance-page-heading">
+    <div>
+      <p class="section-eyebrow">Finanzas · intención mensual</p>
+      <h1>Plan mensual</h1>
+      <span>Decide el destino del dinero antes de que el mes lo haga por ti.</span>
+    </div>
+    <button class="ui-button" type="button" [disabled]="!dirty() || store.saving()" (click)="save()">Guardar plan</button>
+  </header>
+
+  <app-finance-period-toolbar/>
+
+  @if (store.loading()) {
+    <div class="finance-loading"><span class="ui-spinner" role="status" aria-label="Cargando plan"></span></div>
+  } @else {
+    <section class="plan-overview ui-card">
+      <label class="ui-field">Saldo inicial
+        <input class="ui-input finance-data" type="number" step="0.01" [value]="openingBalance()" (input)="updateOpeningBalance($event)">
+      </label>
+      <div><span>Ingresos</span><strong class="finance-data finance-flow--income">+{{ store.formatMoney(plannedIncome()) }}</strong></div>
+      <div><span>Salidas</span><strong class="finance-data">−{{ store.formatMoney(plannedExpense() + plannedSaving()) }}</strong></div>
+      <div class="plan-overview__result"><span>Remanente previsto</span><strong class="finance-data">{{ store.formatMoney(projectedRemainder()) }}</strong></div>
+    </section>
+
+    <section class="plan-groups">
+      @for (group of flowGroups; track group.type) {
+        <article class="plan-group ui-card">
+          <header>
+            <div><p class="section-eyebrow">{{ group.type === 'income' ? 'Entrada' : group.type === 'expense' ? 'Salida' : 'Reserva' }}</p><h2>{{ group.label }}</h2></div>
+            <span class="finance-data">{{ store.formatMoney(group.type === 'income' ? plannedIncome() : group.type === 'expense' ? plannedExpense() : plannedSaving()) }}</span>
+          </header>
+          <p>{{ group.description }}</p>
+          <div class="plan-lines">
+            @for (row of rowsFor(group.type); track row.category.id) {
+              <div class="plan-line">
+                <span><strong>{{ row.category.name }}</strong><small>Real {{ store.formatMoney(row.actualAmount) }} · pendiente {{ store.formatMoney(row.committedAmount) }}</small></span>
+                <label class="sr-only" [for]="'plan-' + row.category.id">Presupuesto para {{ row.category.name }}</label>
+                <input class="ui-input finance-data" [id]="'plan-' + row.category.id" type="number" min="0" step="0.01" [value]="plannedValues().get(row.category.id) ?? 0" (input)="updatePlannedAmount(row.category.id, $event)">
+                <div class="ui-progress" aria-hidden="true"><span [style.width.%]="progress(row.actualAmount, row.category.id)"></span></div>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>

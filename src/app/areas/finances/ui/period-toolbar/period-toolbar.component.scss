@@ -1,0 +1,3 @@
+:host { display: block; }
+.finance-period-toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-3); }
+@media (max-width: 42rem) { .finance-period-toolbar { padding-inline: var(--space-2); } }
