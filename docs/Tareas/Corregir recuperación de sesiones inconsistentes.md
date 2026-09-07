@@ -1,11 +1,11 @@
 ---
 Nombre: Corregir recuperación de sesiones inconsistentes
-Estado: En curso
-Resumen: Las sesiones cuyo perfil no puede recuperarse se limpian localmente y redirigen al login; ninguna excepción del guard puede dejar la aplicación en blanco.
-Decisiones: La consulta de perfil no exigirá una respuesta singular de PostgREST; un fallo de recuperación limpiará solo la sesión local; el guard convertirá cualquier excepción de autenticación en una redirección segura.
+Estado: Hecha
+Resumen: Las sesiones cuyo perfil no puede recuperarse se limpian localmente y redirigen al login; los esquemas requeridos quedan persistidos en la configuración gestionada de la Data API.
+Decisiones: La consulta de perfil no exigirá una respuesta singular de PostgREST; un fallo de recuperación limpiará solo la sesión local; el guard convertirá cualquier excepción de autenticación en una redirección segura; la lista de esquemas expuestos se gestionará desde la configuración del proyecto y no mediante un override del rol `authenticator`.
 Bloqueada: []
 Fecha de creación: 2026-09-03T19:35:00+02:00
-Última modificación: 2026-09-03T19:43:00+02:00
+Última modificación: 2026-09-03T20:02:00+02:00
 ---
 
 # Corregir recuperación de sesiones inconsistentes
@@ -35,3 +35,16 @@ Una sesión antigua almacenada en Android renovaba correctamente su token y vali
 - Suite completa: 49 archivos y 129 pruebas correctas.
 - Build de producción: correcto; permanecen únicamente los avisos de presupuesto ya registrados en tareas independientes.
 - Versión `0.7.1` preparada para el despliegue de producción.
+
+## Incidencia posterior al despliegue
+
+- La versión `0.7.1`, commit `bc03f53`, alcanzó `READY` en producción y sustituyó la pantalla blanca por una recuperación hacia el login.
+- Los intentos OAuth con Google completan autorización, callback y validación de usuario con respuestas correctas.
+- La Data API responde `PGRST106` porque actualmente solo expone `public` y `graphql_public`; han desaparecido de la configuración externa tanto `gift_card` como `nocendland`.
+- Mientras `nocendland` no vuelva a exponerse, la lectura del perfil falla y la recuperación local redirige correctamente al login, provocando el bucle observado.
+- Se restauró `pgrst.db_schemas` con `public, graphql_public, gift_card, nocendland`, se recargaron configuración y caché de PostgREST y se verificaron los privilegios mínimos de `authenticated` sobre `nocendland`.
+- Los logs sitúan la pérdida tras una recarga de configuración y reinicio de Auth a las 14:42 del 3 de septiembre. No hay acciones de rama registradas; la causa probable es que la configuración gestionada conservaba los valores por defecto y sobrescribió el ajuste SQL durante esa recarga.
+- La configuración gestionada de la Data API se actualizó mediante la Management API para exponer `public, graphql_public, gift_card, nocendland`.
+- La misma lista queda declarada en `supabase/config.toml`, evitando que una futura sincronización de configuración desde el repositorio restaure los valores por defecto.
+- Se eliminó el override temporal `pgrst.db_schemas` del rol `authenticator` y se forzó una nueva recarga de configuración y esquema.
+- Tras la recarga, `gift_card.shared_cards` responde HTTP 200 con el rol público y `nocendland.user` responde HTTP 401/`42501` con el rol anónimo, confirmando que ambos esquemas están expuestos y que se mantienen sus permisos previstos.

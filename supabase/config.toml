@@ -1,4 +1,7 @@
 
+[api]
+schemas = ["public", "graphql_public", "gift_card", "nocendland"]
+
 [functions.training-share]
 enabled = true
 verify_jwt = false
