@@ -24,7 +24,7 @@ export class SideNavMenuComponent {
       area: 'finances',
       title: 'Finanzas',
       buttons: [
-        {title: 'Abrir área', description: 'Dinero, planificación y patrimonio personal', icon: 'account_balance_wallet', action: () => this.open('finances')},
+        {title: 'Mi dinero', description: 'Dinero, planificación y patrimonio personal', icon: 'account_balance_wallet', action: () => this.open('finances')},
       ],
     },
     {

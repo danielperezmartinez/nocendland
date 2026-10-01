@@ -1,11 +1,11 @@
 ---
 Nombre: Diseñar e implementar finanzas personales
 Estado: Hecha
-Resumen: Finanzas personales está implementada como una feature responsive de cinco páginas, con periodos configurables, movimientos, recurrentes, planificación y objetivos persistidos en siete tablas aisladas por usuario en devappsdpm-db.
-Decisiones: Finanzas es individual y tiene cinco páginas; los recurrentes crean movimientos pendientes editables por ocurrencia; el periodo empieza el día 1 por defecto, admite del 1 al 31 y usa el último día cuando el configurado no existe; el progreso de objetivos agrega todas las aportaciones completadas del historial; las tablas pertenecen al esquema nocendland de devappsdpm-db.
+Resumen: Finanzas personales está implementada como una feature responsive de cinco páginas, con periodos configurables, movimientos, recurrentes, planificación y objetivos persistidos en siete tablas aisladas por usuario en devappsdpm-db; la tarjeta de navegación se titula «Mi dinero».
+Decisiones: Finanzas es individual y tiene cinco páginas; la tarjeta de acceso se titula «Mi dinero»; los recurrentes crean movimientos pendientes editables por ocurrencia; el periodo empieza el día 1 por defecto, admite del 1 al 31 y usa el último día cuando el configurado no existe; el progreso de objetivos agrega todas las aportaciones completadas del historial; las tablas pertenecen al esquema nocendland de devappsdpm-db.
 Bloqueada: []
 Fecha de creación: 2026-09-07T10:26:56+02:00
-Última modificación: 2026-09-07T13:31:12+02:00
+Última modificación: 2026-10-01T23:41:15+02:00
 ---
 
 # Diseñar e implementar finanzas personales
