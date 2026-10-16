@@ -54,3 +54,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Pruebas e2e de accesibilidad
+/test-results
+/playwright-report
