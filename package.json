@@ -17,6 +17,7 @@
     "test": "ng test",
     "test:a11y": "playwright test",
     "test:security:db": "supabase test db --local",
+    "test:security:db:local": "node scripts/test-security-db-local.mjs",
     "check:bundle-secrets": "node scripts/check-bundle-secrets.mjs",
     "generate-types": "pnpm exec supabase gen types typescript --project-id zckqbrwdgxohdymiwbfz --schema nocendland > ./src/app/platform/supabase/database.types.ts",
     "security:audit": "pnpm audit --audit-level high",

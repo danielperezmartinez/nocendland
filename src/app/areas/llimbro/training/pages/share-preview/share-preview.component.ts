@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router'
 import {AuthService} from '@platform/auth/auth.service'
 import {AvatarComponent} from '@shared/ui/avatar'
 import {ShareRepository} from '../../data-access/share.repository'
+import {describeTrainingShareError} from '../../models/share-errors'
 import {
   TrainingExercise,
   TrainingShareConflictAction,
@@ -71,10 +72,7 @@ export class SharePreviewComponent {
         conflicts: this.conflicts(),
       }))
     } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      this.error.set(message.includes('schedule_already_imported')
-        ? 'Este horario ya está en tu catálogo.'
-        : 'No se ha podido importar el contenido. Inténtalo de nuevo.')
+      this.error.set(describeTrainingShareError(error, 'No se ha podido importar el contenido. Inténtalo de nuevo.'))
     } finally {
       this.importing.set(false)
     }
@@ -101,8 +99,8 @@ export class SharePreviewComponent {
           .filter(exercise => matches.some(match => match.portable_id === exercise.portableId))
           .map(exercise => [exercise.portableId, 'keep' as const])))
       }
-    } catch {
-      this.error.set('Este enlace no existe o ha sido revocado.')
+    } catch (error) {
+      this.error.set(describeTrainingShareError(error, 'Este enlace no existe o ha sido revocado.'))
     } finally {
       this.loading.set(false)
     }

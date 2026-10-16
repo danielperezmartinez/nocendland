@@ -9,8 +9,9 @@ import {
   TrainingSharePreview,
   TrainingShareType,
 } from '../models/training.models'
+import {TrainingShareError, TrainingShareErrorCode} from '../models/share-errors'
 
-type FunctionResponse<T> = {data: T | null; error: {message: string} | null}
+type FunctionResponse<T> = {data: T | null; error: {message: string; context?: unknown} | null}
 
 @Injectable()
 export class ShareRepository {
@@ -56,7 +57,19 @@ export class ShareRepository {
 
   private async invoke<T>(body: Record<string, unknown>): Promise<T> {
     const response = await this.supabase.client.functions.invoke('training-share', {body}) as FunctionResponse<T>
-    if (response.error || !response.data) return Promise.reject(response.error ?? new Error('Empty function response'))
+    if (response.error) return Promise.reject(new TrainingShareError(await readErrorCode(response.error)))
+    if (!response.data) return Promise.reject(new TrainingShareError('training_share_failed'))
     return response.data
+  }
+}
+
+/** Extrae el código público de la respuesta de error de la función, si lo trae. */
+async function readErrorCode(error: {context?: unknown}): Promise<TrainingShareErrorCode> {
+  if (!(error.context instanceof Response)) return 'training_share_failed'
+  try {
+    const body = await error.context.json() as {code?: unknown}
+    return typeof body.code === 'string' ? body.code as TrainingShareErrorCode : 'training_share_failed'
+  } catch {
+    return 'training_share_failed'
   }
 }
