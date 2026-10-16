@@ -1,11 +1,12 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {RouterLink} from '@angular/router';
 
 import {SideNavService} from "@shell/state/side-nav.service";
 import {NavigationService} from "@shell/navigation/navigation.service"
 
 @Component({
     selector: 'app-side-nav-menu',
-  imports: [],
+  imports: [RouterLink],
     templateUrl: './side-nav-menu.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './side-nav-menu.component.scss'

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { SideNavMenuComponent } from './side-nav-menu.component';
 
@@ -8,7 +9,8 @@ describe('SideNavMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SideNavMenuComponent]
+      imports: [SideNavMenuComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 
@@ -28,5 +30,13 @@ describe('SideNavMenuComponent', () => {
     ).map(heading => heading.textContent?.trim());
 
     expect(headings).toEqual(['Llimbro', 'Finanzas', 'Miscelánea', 'Datos']);
+  });
+
+  it('should link the legal pages from the home menu', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const links = Array.from(element.querySelectorAll<HTMLAnchorElement>('.atlas-navigation__legal a'))
+      .map(link => link.getAttribute('href'));
+
+    expect(links).toEqual(['/privacy', '/legal-notice']);
   });
 });

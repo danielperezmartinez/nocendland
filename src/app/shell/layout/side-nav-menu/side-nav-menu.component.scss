@@ -74,3 +74,11 @@
   color: var(--area-accent-strong);
   font-size: var(--font-size-lg);
 }
+
+.atlas-navigation__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-6) 0 0;
+  font-size: var(--font-size-sm);
+}

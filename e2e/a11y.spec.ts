@@ -5,6 +5,8 @@ import {expect, test} from '@playwright/test';
 // necesitan un usuario de prueba en una pila local de Supabase (pendiente).
 const publicRoutes = [
   {path: '/auth', ready: 'button'},
+  {path: '/privacy', ready: 'h1'},
+  {path: '/legal-notice', ready: 'h1'},
   {path: '/share/training/token-de-prueba-inexistente', ready: 'main, h1, h2, p'},
 ];
 
