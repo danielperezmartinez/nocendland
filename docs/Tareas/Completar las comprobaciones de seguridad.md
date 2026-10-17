@@ -1,11 +1,11 @@
 ---
 Nombre: Completar las comprobaciones de seguridad
-Estado: Pendiente
+Estado: En curso
 Resumen: Las comprobaciones del sistema de seguridad ya están montadas, pero el test de catálogo falla en local por pg_net (preinstalado en la imagen local y ausente en el remoto) y por el bucket no versionado, AXE solo cubre las rutas públicas y el workflow de CI todavía no es obligatorio en la rama principal.
-Decisiones: Los tests SQL se ejecutan solo contra la base local construida con las migraciones, nunca contra devappsdpm-db.
-Bloqueada: ["[[Limitar tamaño y cuota del bucket de Nocendland]]"]
+Decisiones: "pg_net se retira solo de la base local de pruebas, porque una migración ejecutada como postgres no puede revocar los permisos que concede supabase_admin; a cambio, los scripts fallan si una migración instala pg_net o http. Para cumplir WCAG AA, los botones principales y los estados activos con texto usan el tono fuerte del área; el acento base queda para decoración."
+Bloqueada: []
 Fecha de creación: 2026-10-16T23:23:13+02:00
-Última modificación: 2026-10-16T23:23:13+02:00
+Última modificación: 2026-10-17T09:46:56+02:00
 ---
 
 # Completar las comprobaciones de seguridad
@@ -31,3 +31,20 @@ Las comprobaciones se montaron el 2026-10-16 con el sistema «Seguridad, coste y
 ## Verificación
 
 - `pnpm run test:security:db`, `pnpm run test:a11y`, `pnpm run build` y `pnpm run check:bundle-secrets` en verde, en local y en CI.
+
+## Resultado (2026-10-17)
+
+- `scripts/local-supabase.mjs`, `scripts/test-security-db-local.mjs` y `scripts/test-a11y-local.mjs` levantan pilas locales con proyecto y puertos propios. Las usan `pnpm run test:security:db:local`, `pnpm run test:a11y:local` y el CI.
+- La pila de AXE ajusta en local `pgrst.db_schemas`, que la migración principal fija con `gift_card` (inexistente en local), y Playwright redirige a ella todas las peticiones de la app al proyecto remoto.
+- AXE en 15 rutas autenticadas. Se corrigieron la navegación lateral cerrada (`inert` en lugar de `aria-hidden` con foco dentro), el contraste de botones y estados activos en Llimbro, Miscelánea y Finanzas, y la cifra decorativa de Seguimiento.
+
+## Verificación local
+
+- `pnpm run test:security:db:local`: 133/133.
+- `pnpm run test:a11y:local`: 19/19 (4 públicas y 15 autenticadas, con espera a que la shell y el perfil se pinten).
+- `pnpm run build` y `pnpm run check:bundle-secrets`: correctos.
+- `pnpm test`: 179/179.
+
+## Pendiente
+
+Tras el push, comprobar que el workflow `Seguridad` pasa en GitHub y marcar los jobs `rls` y `a11y` como obligatorios en la protección de la rama principal.

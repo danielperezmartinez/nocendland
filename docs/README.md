@@ -98,7 +98,8 @@ Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también 
 
 #### Comprobaciones y compuerta de "Hecha"
 
-- Comprobaciones del proyecto: `pnpm run test:security:db` (pgTAP con `supabase test db` sobre la base local construida solo con las migraciones; tests en `supabase/tests/`), `pnpm run test:a11y` (AXE con Playwright en `e2e/a11y.spec.ts`) y la búsqueda de claves secretas en `dist/` tras el build. Las tres se ejecutan en `.github/workflows/seguridad.yml`. Los tests SQL nunca se ejecutan contra el proyecto remoto compartido.
+- Comprobaciones del proyecto: `pnpm run test:security:db:local` (pgTAP sobre una base local de Docker construida solo con las migraciones, con puertos propios; tests en `supabase/tests/`), `pnpm run test:a11y:local` (AXE con Playwright en las rutas públicas y en las autenticadas, contra una pila local de Supabase a la que se redirigen todas las peticiones de la app; specs en `e2e/`) y `pnpm run check:bundle-secrets` tras `pnpm run build`. Las tres se ejecutan en `.github/workflows/seguridad.yml`. Ninguna se ejecuta contra el proyecto remoto compartido.
+- La base local de pruebas retira `pg_net`, que la imagen de Supabase trae con permisos para `anon` y que `devappsdpm-db` no tiene instalado. Por eso ninguna migración puede instalar `pg_net` o `http`: los scripts locales fallan si lo detectan, y hay que revisar sus permisos antes.
 - **Una tarea que toque backend o UI no pasa a `Hecha`** hasta que esas comprobaciones estén en verde, y su sección "Verificación" lo deja escrito (qué se ejecutó y dónde). Si el cambio añade tablas, políticas, funciones o rutas, añade también su test en el mismo cambio.
 - Una excepción a estas reglas es una nota `Excepción` en `Seguridad/` con su justificación. Sin nota, no hay excepción.
 
