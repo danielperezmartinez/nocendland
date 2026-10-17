@@ -1,11 +1,11 @@
 ---
 Nombre: Restringir el acceso a la API de Nocendland
-Estado: En curso
+Estado: Hecha
 Resumen: Cualquier cuenta del Auth compartido de devappsdpm-db (también las creadas para gift-card u Outify) obtiene el rol authenticated y puede usar toda la API de Nocendland pese a ser una app personal; hay que limitarla a una lista de usuarios permitidos sin romper las otras apps.
 Decisiones: "La app queda abierta a cualquier cuenta del Auth compartido, sin lista de permitidos: aunque es personal, quien la encuentre debe poder usarla. El abuso se limita con topes por usuario (Storage, filas, textos, enlaces) en lugar de cerrar el acceso; no se toca la configuración global de Auth."
 Bloqueada: []
 Fecha de creación: 2026-10-16T23:23:13+02:00
-Última modificación: 2026-10-17T09:46:56+02:00
+Última modificación: 2026-10-17T14:40:00+02:00
 ---
 
 # Restringir el acceso a la API de Nocendland
@@ -32,13 +32,15 @@ Cerrar el registro de Auth no es una opción por sí sola, porque afectaría a g
 
 ## Resultado (2026-10-17)
 
-Se descartó la lista de permitidos por decisión del usuario. El riesgo de abuso se cubre con los topes de [[Limitar tamaño y cuota del bucket de Nocendland]] y [[Endurecer la función training-share]] y con los de la misma migración `supabase/migrations/20261017090000_security_cost_limits.sql`: 2.000 ingredientes, 50.000 ingestas, 500 ejercicios, 50 horarios, 2.000 elementos de horario, 50.000 sesiones y series, y entre 200 y 20.000 filas en las tablas de Finanzas, además de longitudes máximas en los textos libres. Como hay terceros, se publican las páginas legales ([[Publicar política de privacidad y aviso legal]]).
+Se descartó la lista de permitidos por decisión del usuario. El riesgo de abuso se cubre con los topes de [[Limitar tamaño y cuota del bucket de Nocendland]] y [[Endurecer la función training-share]] y con los de la misma migración `supabase/migrations/20261017123157_nocendland_security_cost_limits.sql`: 2.000 ingredientes, 50.000 ingestas, 500 ejercicios, 50 horarios, 2.000 elementos de horario, 50.000 sesiones y series, y entre 200 y 20.000 filas en las tablas de Finanzas, además de longitudes máximas en los textos libres. Como hay terceros, se publican las páginas legales ([[Publicar política de privacidad y aviso legal]]).
 
 ## Verificación local
 
 - `pnpm run test:security:db:local`: 133/133 (incluye el tope de horarios y la longitud de textos en `supabase/tests/20_limites_coste.test.sql`).
 
+## Aplicado en remoto (2026-10-17)
 
-## Pendiente de aplicar en remoto
-
-El cambio está en la rama `feat/seguridad-coste-cumplimiento`, sin push. Falta aplicar `supabase/migrations/20261017090000_security_cost_limits.sql` en `devappsdpm-db` y, cuando corresponda, desplegar la función `training-share` y el frontend, con aprobación explícita del usuario. La tarea pasa a `Hecha` cuando el resultado se verifique en remoto.
+- Migración aplicada en `devappsdpm-db` con la versión `20261017123157` del ledger compartido: `20261017090000` ya la usaba `outify_security_limits`, así que el archivo del repo se renombró a `20261017123157_nocendland_security_cost_limits.sql`.
+- Comprobado en remoto: bucket a 2 MB con PNG/JPEG/WebP, cinco funciones `SECURITY DEFINER` con `search_path` vacío y sin `EXECUTE` para `anon`, triggers de topes y de identidad, 21 restricciones de longitud y políticas de Storage de Outify intactas.
+- `training-share` desplegada como versión 2 (`verify_jwt = false`, igual que antes); responde `share_not_found` (404), `authentication_required` (401) y `method_not_allowed` (405) con llamadas anónimas.
+- Frontend 0.9.0 en producción en Vercel (`READY`, commit `073a0e7`) y workflow `Seguridad` en verde en GitHub.

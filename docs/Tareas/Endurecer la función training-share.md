@@ -1,11 +1,11 @@
 ---
 Nombre: Endurecer la función training-share
-Estado: En curso
+Estado: Hecha
 Resumen: La Edge Function training-share acepta preview anónimo sin límite de peticiones, permite crear enlaces de compartir sin tope ni caducidad (cada uno copia imágenes al bucket) y devuelve al cliente mensajes de error internos; hay que añadir límites, caducidad y errores genéricos.
 Decisiones: "Los enlaces siguen sin caducar (se mantiene lo acordado en Compartir ejercicios y horarios); se añaden un tope de 20 enlaces activos por usuario y un límite de 60 previsualizaciones por enlace y hora, contadas en nocendland_private. La función devuelve solo códigos públicos y registra el detalle en sus logs."
 Bloqueada: []
 Fecha de creación: 2026-10-16T23:23:13+02:00
-Última modificación: 2026-10-17T09:46:56+02:00
+Última modificación: 2026-10-17T14:40:00+02:00
 ---
 
 # Endurecer la función training-share
@@ -43,7 +43,9 @@ Hallazgos de gravedad baja de la auditoría del 2026-10-16, en `supabase/functio
 - Función servida con `supabase functions serve` en la pila local: previsualización válida 200, inexistente 404, 60 previsualizaciones permitidas y la 61.ª con 429, acción sin sesión 401, `create` válido 200, enlace 21 con 409 y ejercicio ajeno con 400 genérico.
 - `pnpm test`: 179/179 (incluye `share.repository.spec.ts`).
 
+## Aplicado en remoto (2026-10-17)
 
-## Pendiente de aplicar en remoto
-
-El cambio está en la rama `feat/seguridad-coste-cumplimiento`, sin push. Falta aplicar `supabase/migrations/20261017090000_security_cost_limits.sql` en `devappsdpm-db` y, cuando corresponda, desplegar la función `training-share` y el frontend, con aprobación explícita del usuario. La tarea pasa a `Hecha` cuando el resultado se verifique en remoto.
+- Migración aplicada en `devappsdpm-db` con la versión `20261017123157` del ledger compartido: `20261017090000` ya la usaba `outify_security_limits`, así que el archivo del repo se renombró a `20261017123157_nocendland_security_cost_limits.sql`.
+- Comprobado en remoto: bucket a 2 MB con PNG/JPEG/WebP, cinco funciones `SECURITY DEFINER` con `search_path` vacío y sin `EXECUTE` para `anon`, triggers de topes y de identidad, 21 restricciones de longitud y políticas de Storage de Outify intactas.
+- `training-share` desplegada como versión 2 (`verify_jwt = false`, igual que antes); responde `share_not_found` (404), `authentication_required` (401) y `method_not_allowed` (405) con llamadas anónimas.
+- Frontend 0.9.0 en producción en Vercel (`READY`, commit `073a0e7`) y workflow `Seguridad` en verde en GitHub.
