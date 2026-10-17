@@ -1,11 +1,11 @@
 ---
 Nombre: Publicar política de privacidad y aviso legal
-Estado: En curso
+Estado: Hecha
 Resumen: Nocendland guarda datos de salud (nutrición, entrenamiento) y de finanzas, además de email y avatar, pero no tiene aviso legal ni política de privacidad; hay que publicarlos y enlazarlos desde todas las páginas, o justificar por escrito que la app es solo de uso personal.
 Decisiones: "La app es personal, pero quien la encuentre puede usarla, así que se publican la política de privacidad y el aviso legal. Responsable: Daniel Pérez Martínez; contacto: dlperezmartinez@gmail.com; sin dirección postal porque no hay actividad económica. Encargados: Supabase (UE, Fráncfort) y Vercel."
 Bloqueada: []
 Fecha de creación: 2026-10-16T23:23:13+02:00
-Última modificación: 2026-10-17T09:46:56+02:00
+Última modificación: 2026-10-17T14:40:00+02:00
 ---
 
 # Publicar política de privacidad y aviso legal
@@ -38,6 +38,6 @@ Solo hay `localStorage` funcional (tema, navegación), así que no hace falta ba
 - `pnpm run test:a11y:local`: `/privacy` y `/legal-notice` sin infracciones.
 - `pnpm test`: `legal-pages.spec.ts` comprueba el contenido, los enlaces y que las rutas no exigen sesión.
 
-## Pendiente
+## Publicado (2026-10-17)
 
-Se publica con el próximo despliegue del frontend, tras el push aprobado por el usuario.
+Desplegado en producción con la versión 0.9.0 (Vercel `READY`, commit `073a0e7`).

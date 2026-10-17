@@ -5,7 +5,7 @@ Resumen: Las comprobaciones del sistema de seguridad ya están montadas, pero el
 Decisiones: "pg_net se retira solo de la base local de pruebas, porque una migración ejecutada como postgres no puede revocar los permisos que concede supabase_admin; a cambio, los scripts fallan si una migración instala pg_net o http. Para cumplir WCAG AA, los botones principales y los estados activos con texto usan el tono fuerte del área; el acento base queda para decoración."
 Bloqueada: []
 Fecha de creación: 2026-10-16T23:23:13+02:00
-Última modificación: 2026-10-17T09:46:56+02:00
+Última modificación: 2026-10-17T14:40:00+02:00
 ---
 
 # Completar las comprobaciones de seguridad
@@ -47,4 +47,4 @@ Las comprobaciones se montaron el 2026-10-16 con el sistema «Seguridad, coste y
 
 ## Pendiente
 
-Tras el push, comprobar que el workflow `Seguridad` pasa en GitHub y marcar los jobs `rls` y `a11y` como obligatorios en la protección de la rama principal.
+El workflow `Seguridad` pasó en GitHub en la PR y en `main` (2026-10-17). `main` no tiene protección de rama: falta que el usuario decida activarla y marcar `rls` y `a11y` como obligatorios.
