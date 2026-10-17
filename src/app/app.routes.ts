@@ -9,6 +9,18 @@ export const routes: Routes = [
     loadChildren: () => import('@platform/auth/auth.routes').then(({AUTH_ROUTES}) => AUTH_ROUTES),
   },
   {
+    path: 'privacy',
+    title: 'Política de privacidad · Nocendland',
+    loadComponent: () => import('@shell/legal/privacy-policy/privacy-policy.component')
+      .then(({PrivacyPolicyComponent}) => PrivacyPolicyComponent),
+  },
+  {
+    path: 'legal-notice',
+    title: 'Aviso legal · Nocendland',
+    loadComponent: () => import('@shell/legal/legal-notice/legal-notice.component')
+      .then(({LegalNoticeComponent}) => LegalNoticeComponent),
+  },
+  {
     path: 'share/training/:token',
     loadComponent: () => import('@areas/llimbro/training/pages/share-preview/share-preview.component')
       .then(({SharePreviewComponent}) => SharePreviewComponent),

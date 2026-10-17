@@ -141,9 +141,17 @@ export class IngredientRepository {
 
     console.log('Uploading image to ingredient: ', ingredient)
 
-    return await this.storage.uploadImage(`${this.entity}/${this.auth.requireUserId()}/${ingredient.id}`, file)
-      .then(imageData => imageData)
-      .catch(error => console.error('Error image to ingredient: ', ingredient, error))
-    .finally(() => this.savingIngredientImageState.set(false))
+    try {
+      // Storage rechaza archivos de más de 2 MB y subidas por encima de la cuota del
+      // usuario; el error se propaga para que la página no confirme un guardado fallido.
+      const upload = await this.storage.uploadImage(`${this.entity}/${this.auth.requireUserId()}/${ingredient.id}`, file)
+      if (upload.error) throw upload.error
+      return upload
+    } catch (error) {
+      console.error('Error image to ingredient: ', ingredient, error)
+      throw error
+    } finally {
+      this.savingIngredientImageState.set(false)
+    }
   }
 }

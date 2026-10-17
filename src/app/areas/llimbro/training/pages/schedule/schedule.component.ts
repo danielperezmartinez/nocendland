@@ -11,6 +11,7 @@ import {
   SortableMove,
 } from '@shared/ui/sortable-list'
 import {firstValueFrom} from 'rxjs'
+import {describeTrainingShareError} from '../../models/share-errors'
 import {RepetitionsInputComponent} from '../../ui/repetitions-input/repetitions-input.component'
 import {
   TrainingExerciseListItem,
@@ -230,8 +231,8 @@ export class ScheduleComponent {
       const url = new URL(`/share/training/${share.token}`, globalThis.location.origin).toString()
       this.shareUrl.set(url)
       await this.copyShareUrl(url)
-    } catch {
-      this.catalogError.set('No se ha podido crear el enlace compartido.')
+    } catch (error) {
+      this.catalogError.set(describeTrainingShareError(error, 'No se ha podido crear el enlace compartido.'))
     }
   }
 

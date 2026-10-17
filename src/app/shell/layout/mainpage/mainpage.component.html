@@ -3,11 +3,12 @@
     class="app-shell__scrim"
     type="button"
     aria-label="Cerrar navegación"
-    [attr.aria-hidden]="!sideNavService.isOpen()"
+    [inert]="!sideNavService.isOpen()"
     (click)="sideNavService.close()"
   ></button>
 
-  <aside id="primary-navigation" class="app-shell__navigation" [attr.aria-hidden]="!sideNavService.isOpen()">
+  <!-- Cerrada, la navegación queda fuera de pantalla: inert evita que el foco del teclado entre en ella. -->
+  <aside id="primary-navigation" class="app-shell__navigation" [inert]="!sideNavService.isOpen()">
     <div class="app-shell__navigation-topline">
       <span class="app-shell__atlas-mark">Atlas personal</span>
       <button class="ui-icon-button" type="button" aria-label="Cerrar navegación" (click)="sideNavService.close()">

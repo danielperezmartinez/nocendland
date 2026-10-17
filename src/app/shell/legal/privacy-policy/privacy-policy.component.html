@@ -1,0 +1,58 @@
+<main class="legal-page" data-area="home">
+  <article class="legal-document ui-card">
+    <h1>Política de privacidad</h1>
+    <p class="legal-document__updated">Última actualización: {{ contact.updatedOn }}</p>
+
+    <h2>Quién trata tus datos</h2>
+    <p>
+      El responsable es {{ contact.owner }}. Para cualquier cuestión sobre tus datos escribe a
+      <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>.
+      Nocendland es un proyecto personal y gratuito, sin publicidad ni actividad comercial.
+    </p>
+
+    <h2>Qué datos se guardan</h2>
+    <ul>
+      <li>Datos de tu cuenta: email, nombre y avatar que facilita GitHub o Google al iniciar sesión.</li>
+      <li>Lo que registras tú: alimentos, ingestas y objetivos nutricionales; ejercicios, horarios, sesiones e imágenes de entrenamiento; categorías, movimientos, presupuestos y objetivos de finanzas.</li>
+      <li>Los datos de nutrición y entrenamiento pueden revelar información sobre tu salud, que el RGPD considera una categoría especial.</li>
+    </ul>
+
+    <h2>Para qué y con qué base</h2>
+    <ul>
+      <li>Solo para ofrecerte las funciones de la aplicación: guardar, mostrar y resumir tus registros.</li>
+      <li>La base legal es la prestación del servicio que solicitas al crear tu cuenta (art. 6.1.b RGPD) y, para los datos de salud, tu consentimiento explícito al registrarlos voluntariamente (art. 9.2.a RGPD). Puedes retirarlo en cualquier momento borrando esos registros o pidiendo la baja.</li>
+      <li>No se venden ni se ceden datos, no hay analítica, publicidad ni perfiles automatizados.</li>
+    </ul>
+
+    <h2>Quién más los procesa</h2>
+    <ul>
+      <li>Supabase, como encargado del tratamiento: base de datos, autenticación y archivos, alojados en la Unión Europea (Fráncfort).</li>
+      <li>Vercel, como encargado del tratamiento: alojamiento y entrega de la aplicación web.</li>
+      <li>GitHub o Google, solo si eliges iniciar sesión con ellos, según sus propias políticas.</li>
+    </ul>
+    <p>
+      Cuando compartes ejercicios u horarios mediante un enlace, quien tenga el enlace puede ver su contenido
+      hasta que lo revoques.
+    </p>
+
+    <h2>Cookies y almacenamiento local</h2>
+    <p>
+      Solo se usa almacenamiento técnico del navegador para mantener tu sesión, el tema y la navegación.
+      No hay cookies de analítica, publicidad ni de terceros, por eso no se muestra un aviso de cookies.
+    </p>
+
+    <h2>Cuánto tiempo y tus derechos</h2>
+    <p>
+      Los datos se conservan mientras mantengas tu cuenta. Puedes pedir el acceso, la rectificación, la supresión,
+      la portabilidad, la limitación o la oposición escribiendo a
+      <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>.
+      Si crees que no se han atendido tus derechos, puedes reclamar ante la Agencia Española de Protección de Datos
+      (<a href="https://www.aepd.es" rel="noopener" target="_blank">aepd.es</a>).
+    </p>
+
+    <nav class="legal-document__links" aria-label="Información legal">
+      <a routerLink="/legal-notice">Aviso legal</a>
+      <a routerLink="/">Volver a Nocendland</a>
+    </nav>
+  </article>
+</main>

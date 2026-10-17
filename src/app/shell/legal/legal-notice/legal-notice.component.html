@@ -1,0 +1,36 @@
+<main class="legal-page" data-area="home">
+  <article class="legal-document ui-card">
+    <h1>Aviso legal</h1>
+    <p class="legal-document__updated">Última actualización: {{ contact.updatedOn }}</p>
+
+    <h2>Titular</h2>
+    <p>
+      Nocendland es un proyecto personal de {{ contact.owner }}. Contacto:
+      <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>.
+    </p>
+
+    <h2>Objeto</h2>
+    <p>
+      Nocendland es una aplicación gratuita para registrar y consultar información personal de alimentación,
+      entrenamiento y finanzas. No tiene actividad comercial, publicidad ni suscripciones.
+    </p>
+
+    <h2>Uso y responsabilidad</h2>
+    <p>
+      La información que muestra la aplicación es orientativa y no sustituye el consejo de profesionales de la salud
+      o de las finanzas. El titular procura mantener el servicio disponible y seguro, pero no garantiza que funcione sin
+      interrupciones ni se responsabiliza del uso que se haga de los datos registrados.
+    </p>
+    <p>
+      Cada usuario es responsable de los contenidos que sube o comparte mediante enlaces y debe tener derecho a usarlos.
+    </p>
+
+    <h2>Datos personales</h2>
+    <p>El tratamiento de datos se explica en la <a routerLink="/privacy">política de privacidad</a>.</p>
+
+    <nav class="legal-document__links" aria-label="Información legal">
+      <a routerLink="/privacy">Política de privacidad</a>
+      <a routerLink="/">Volver a Nocendland</a>
+    </nav>
+  </article>
+</main>

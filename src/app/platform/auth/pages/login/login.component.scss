@@ -56,3 +56,13 @@
 .login-card__actions .ui-button {
   width: 100%;
 }
+
+.login-card__legal {
+  margin-top: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.login-card__legal a + a {
+  margin-left: var(--space-2);
+}

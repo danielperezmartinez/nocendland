@@ -12,6 +12,11 @@ import {IngredientRepository} from "@areas/llimbro/nutrition/data-access/ingredi
 import {IntakeRepository} from "@areas/llimbro/nutrition/data-access/intake.repository"
 import {ObjectiveRepository} from "@areas/llimbro/nutrition/data-access/objective.repository"
 import {NutritionResourcesService} from "@areas/llimbro/nutrition/services/nutrition-resources.service"
+import {compressImage} from "@shared/utilities/image-compression.utils"
+
+// El bucket admite archivos de hasta 2 MB; se deja margen para no rozar el límite.
+const INGREDIENT_IMAGE_MAX_BYTES = 1_900_000
+const INGREDIENT_IMAGE_MAX_DIMENSION = 1024
 
 @Injectable()
 export class NutritionStore {
@@ -99,7 +104,11 @@ export class NutritionStore {
   }
 
   public async saveIngredientImage(ingredient: NutritionIngredient | undefined, file: File): Promise<void> {
-    await this.ingredientRepository.saveIngredientImage(ingredient, file)
+    const image = await compressImage(file, {
+      maxBytes: INGREDIENT_IMAGE_MAX_BYTES,
+      maxDimension: INGREDIENT_IMAGE_MAX_DIMENSION,
+    })
+    await this.ingredientRepository.saveIngredientImage(ingredient, image)
     await this.loadIngredientList()
   }
 

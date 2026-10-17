@@ -71,6 +71,34 @@ function json(body: unknown, status = 200): Response {
   return Response.json(body, {status, headers: corsHeaders})
 }
 
+// Códigos de error que se devuelven al cliente con su estado HTTP. Cualquier otro
+// error se registra en los logs de la función y se responde como genérico, sin
+// detalles internos (mensajes de Postgres, nombres de ejercicios, rutas).
+const clientErrors = new Map<string, number>([
+  ['invalid_request', 400],
+  ['authentication_required', 401],
+  ['share_not_found', 404],
+  ['schedule_not_found', 404],
+  ['invalid_exercise_selection', 400],
+  ['schedule_already_imported', 409],
+  ['share_limit_reached', 409],
+  ['row_limit_exceeded', 409],
+  ['rate_limited', 429],
+])
+
+function errorResponse(code: string): Response {
+  return json({code}, clientErrors.get(code) ?? 500)
+}
+
+/** Traduce un error interno a un código público conocido o al genérico. */
+function toClientCode(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error)
+  const known = [...clientErrors.keys()].find(code => message.includes(code))
+  if (known) return known
+  console.error('training-share', error)
+  return 'training_share_failed'
+}
+
 function isShareType(value: unknown): value is ShareType {
   return value === 'exercises' || value === 'schedule'
 }
@@ -96,7 +124,7 @@ function asManifest(value: unknown): ShareManifest {
 export default {
   fetch: async (request: Request) => {
     if (request.method === 'OPTIONS') return new Response(null, {status: 204, headers: corsHeaders})
-    if (request.method !== 'POST') return json({message: 'Method not allowed'}, 405)
+    if (request.method !== 'POST') return json({code: 'method_not_allowed'}, 405)
 
     try {
       const body = await request.json() as RequestBody
@@ -104,7 +132,7 @@ export default {
 
       const authenticated = await authenticateUser(request)
       if (!authenticated) {
-        return json({message: 'Authentication required'}, 401)
+        return errorResponse('authentication_required')
       }
 
       if (body.action === 'create') {
@@ -116,11 +144,9 @@ export default {
       if (body.action === 'revoke') {
         return await revokeShare(body, authenticated, adminClient)
       }
-      return json({message: 'Unknown action'}, 400)
+      return errorResponse('invalid_request')
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unexpected error'
-      const status = message === 'schedule_already_imported' ? 409 : 400
-      return json({message}, status)
+      return errorResponse(toClientCode(error))
     }
   },
 }
@@ -146,7 +172,7 @@ async function createShare(
   context: UserContext,
   admin: SupabaseClient,
 ): Promise<Response> {
-  if (!isShareType(body.type)) return json({message: 'Invalid share request'}, 400)
+  if (!isShareType(body.type)) return errorResponse('invalid_request')
   const userId = context.userId
   const shareId = crypto.randomUUID()
   const token = randomToken()
@@ -156,7 +182,7 @@ async function createShare(
   try {
     if (body.type === 'exercises') {
       const exerciseIds = [...new Set(body.exerciseIds ?? [])]
-      if (!exerciseIds.length) return json({message: 'Select at least one exercise'}, 400)
+      if (!exerciseIds.length) return errorResponse('invalid_exercise_selection')
       const query = await context.supabase.from('training_exercise').select('*')
         .eq('id_user', userId).is('archived_at', null).in('id', exerciseIds)
       if (query.error || query.data.length !== exerciseIds.length) throw new Error('invalid_exercise_selection')
@@ -168,7 +194,7 @@ async function createShare(
         exercises,
       }
     } else {
-      if (!Number.isInteger(body.scheduleId)) return json({message: 'Invalid schedule'}, 400)
+      if (!Number.isInteger(body.scheduleId)) return errorResponse('invalid_request')
       const scheduleQuery = await context.supabase.from('training_schedule').select('*')
         .eq('id_user', userId).eq('id', body.scheduleId as number).single()
       if (scheduleQuery.error) throw new Error('schedule_not_found')
@@ -209,7 +235,7 @@ async function createShare(
       title: manifest.title,
       manifest,
     })
-    if (insertion.error) throw new Error('share_creation_failed')
+    if (insertion.error) throw new Error(`share_creation_failed: ${insertion.error.message}`)
     return json({id: shareId, token})
   } catch (error) {
     if (copiedImages.length) await admin.storage.from(storageBucket).remove(copiedImages)
@@ -239,7 +265,7 @@ async function snapshotExercises(
     if (exercise.image_path) {
       imageKey = `training_share/${shareId}/${exercise.portable_id}`
       const copied = await admin.storage.from(storageBucket).copy(exercise.image_path, imageKey)
-      if (copied.error) throw new Error(`image_snapshot_failed:${exercise.name}`)
+      if (copied.error) throw new Error(`image_snapshot_failed: ${copied.error.message}`)
       copiedImages.push(imageKey)
     }
     snapshots.push({
@@ -258,10 +284,16 @@ async function snapshotExercises(
 }
 
 async function previewShare(body: RequestBody, admin: SupabaseClient): Promise<Response> {
-  if (!body.token || body.token.length < 32) return json({message: 'Share not found'}, 404)
+  if (!body.token || body.token.length < 32) return errorResponse('share_not_found')
+  const tokenHash = await hashToken(body.token)
+  // Cada previsualización anónima cuenta contra el límite por enlace y hora.
+  const visit = await admin.rpc('register_training_share_preview', {share_token_hash: tokenHash})
+  if (visit.error) throw new Error(`preview_registration_failed: ${visit.error.message}`)
+  if (visit.data === 'not_found') return errorResponse('share_not_found')
+  if (visit.data === 'rate_limited') return errorResponse('rate_limited')
   const query = await admin.from('training_share').select('id, manifest, created_at')
-    .eq('token_hash', await hashToken(body.token)).is('revoked_at', null).single()
-  if (query.error) return json({message: 'Share not found'}, 404)
+    .eq('token_hash', tokenHash).is('revoked_at', null).single()
+  if (query.error) return errorResponse('share_not_found')
   const manifest = asManifest(query.data.manifest)
   const exercises = await Promise.all(manifest.exercises.map(async exercise => {
     if (!exercise.imageKey) return exercise
@@ -280,10 +312,10 @@ async function importShare(
   context: UserContext,
   admin: SupabaseClient,
 ): Promise<Response> {
-  if (!body.token) return json({message: 'Invalid import request'}, 400)
+  if (!body.token) return errorResponse('invalid_request')
   const shareQuery = await admin.from('training_share').select('id, manifest')
     .eq('token_hash', await hashToken(body.token)).is('revoked_at', null).single()
-  if (shareQuery.error) return json({message: 'Share not found'}, 404)
+  if (shareQuery.error) return errorResponse('share_not_found')
   const manifest = asManifest(shareQuery.data.manifest)
   const conflicts = body.conflicts ?? {}
   const rpc = await context.supabase.rpc('import_training_share_manifest', {
@@ -292,13 +324,17 @@ async function importShare(
     activate_schedule: body.activateSchedule ?? false,
     source_share: shareQuery.data.id,
   })
-  if (rpc.error) throw new Error(rpc.error.message)
+  if (rpc.error) throw new Error(`import_failed: ${rpc.error.message}`)
   const result = rpc.data as {
     exerciseIds: Record<string, number>
     scheduleId: number | null
     scheduleName: string | null
   }
   const imageFailures: string[] = []
+  // Las copias se suben con service_role, así que la cuota de Storage del
+  // usuario se comprueba aquí: al alcanzarla, el resto de imágenes no se copia.
+  const storageCount = await context.supabase.rpc('storage_object_count')
+  let remainingObjects = storageCount.error ? 0 : 200 - Number(storageCount.data)
   for (const exercise of manifest.exercises) {
     const exerciseId = result.exerciseIds[exercise.portableId]
     if (!exerciseId) continue
@@ -307,6 +343,10 @@ async function importShare(
         await context.supabase.from('training_exercise').update({image_path: null})
           .eq('id_user', context.userId).eq('id', exerciseId)
       }
+      continue
+    }
+    if (remainingObjects <= 0) {
+      imageFailures.push(exercise.name)
       continue
     }
     const downloaded = await admin.storage.from(storageBucket).download(exercise.imageKey)
@@ -323,6 +363,7 @@ async function importShare(
       imageFailures.push(exercise.name)
       continue
     }
+    remainingObjects -= 1
     const updated = await context.supabase.from('training_exercise').update({
       image_path: destination,
       updated_at: new Date().toISOString(),
@@ -337,10 +378,10 @@ async function revokeShare(
   context: UserContext,
   admin: SupabaseClient,
 ): Promise<Response> {
-  if (!body.shareId) return json({message: 'Invalid revoke request'}, 400)
+  if (!body.shareId) return errorResponse('invalid_request')
   const shareQuery = await context.supabase.from('training_share').select('id, manifest')
     .eq('id', body.shareId).is('revoked_at', null).single()
-  if (shareQuery.error) return json({message: 'Share not found'}, 404)
+  if (shareQuery.error) return errorResponse('share_not_found')
   const manifest = asManifest(shareQuery.data.manifest)
   const update = await admin.from('training_share').update({revoked_at: new Date().toISOString()})
     .eq('id', shareQuery.data.id).eq('owner_id', context.userId)

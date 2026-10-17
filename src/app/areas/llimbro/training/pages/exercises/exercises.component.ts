@@ -3,6 +3,7 @@ import {NavigationService} from '@shell/navigation/navigation.service'
 import {BadgeConfig} from '@shared/ui/badge'
 import {ConfirmDialogService} from '@shared/ui/confirm-dialog'
 import {DataListComponent, DataListConfig, DataListItem} from '@shared/ui/data-list'
+import {describeTrainingShareError} from '../../models/share-errors'
 import {TrainingExerciseListItem} from '../../models/training.models'
 import {TrainingStore} from '../../state/training.store'
 import {trainingTaxonomyLabels} from '../../training.constants'
@@ -125,8 +126,8 @@ export class ExercisesComponent {
       this.shareUrl.set(url)
       this.selectionMode.set('browse')
       await this.copyShareUrl(url)
-    } catch {
-      this.shareError.set('No se ha podido crear el enlace compartido.')
+    } catch (error) {
+      this.shareError.set(describeTrainingShareError(error, 'No se ha podido crear el enlace compartido.'))
     }
   }
 }

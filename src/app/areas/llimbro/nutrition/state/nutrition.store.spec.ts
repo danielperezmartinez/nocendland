@@ -92,4 +92,38 @@ describe('NutritionStore', () => {
     expect(store.objectives()).toBeUndefined()
     expect(store.objectiveTotalsError()).toBe(true)
   })
+
+  describe('saveIngredientImage', () => {
+    const ingredient = {id: 7} as Parameters<NutritionStore['saveIngredientImage']>[0]
+    let saveIngredientImage: ReturnType<typeof vi.fn>
+
+    beforeEach(() => {
+      saveIngredientImage = vi.fn().mockResolvedValue({data: {}, error: null})
+      Object.assign(TestBed.inject(IngredientRepository), {saveIngredientImage})
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({drawImage: vi.fn()} as unknown as CanvasRenderingContext2D)
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(callback =>
+        callback(new Blob([new Uint8Array(1000)], {type: 'image/webp'})))
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      vi.restoreAllMocks()
+    })
+
+    it('uploads a reduced WebP when the photo is too large for the bucket', async () => {
+      vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue({width: 4000, height: 3000, close: vi.fn()}))
+
+      await store.saveIngredientImage(ingredient, new File([new Uint8Array(10)], 'foto.jpg', {type: 'image/jpeg'}))
+
+      const uploaded = saveIngredientImage.mock.calls[0][1] as File
+      expect(uploaded.type).toBe('image/webp')
+      expect(uploaded.size).toBe(1000)
+    })
+
+    it('does not upload files that are not images', async () => {
+      await expect(store.saveIngredientImage(ingredient, new File(['x'], 'nota.txt', {type: 'text/plain'})))
+        .rejects.toThrow('image_compression_invalid_type')
+      expect(saveIngredientImage).not.toHaveBeenCalled()
+    })
+  })
 })

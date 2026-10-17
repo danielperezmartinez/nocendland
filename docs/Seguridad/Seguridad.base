@@ -1,0 +1,42 @@
+filters:
+  and:
+    - file.inFolder("Seguridad")
+    - file.ext == "md"
+    - Tipo != null
+formulas:
+  updated_display: note["Última modificación"].format("DD-MM-YYYY HH:mm")
+properties:
+  file.name:
+    displayName: Nota
+  Tipo: { displayName: Tipo }
+  Estado: { displayName: Estado }
+  Regla: { displayName: Regla }
+  Objeto: { displayName: Objeto }
+  Resumen: { displayName: Resumen }
+  Revisar antes de: { displayName: Revisar antes de }
+  formula.updated_display: { displayName: Modificada }
+views:
+  - type: table
+    name: Todo
+    order: [file.name, Tipo, Estado, Resumen, formula.updated_display]
+    sort:
+      - property: Tipo
+        direction: ASC
+      - property: file.name
+        direction: ASC
+  - type: table
+    name: Excepciones vigentes
+    filters:
+      and:
+        - Tipo == "Excepción"
+        - Estado == "Vigente"
+    order: [file.name, Regla, Objeto, Resumen, Revisar antes de]
+    sort:
+      - property: Revisar antes de
+        direction: ASC
+  - type: table
+    name: Checklists
+    filters:
+      and:
+        - Tipo == "Checklist"
+    order: [file.name, Estado, Resumen, formula.updated_display]

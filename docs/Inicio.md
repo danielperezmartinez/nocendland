@@ -12,6 +12,11 @@ Este es el nexo de navegación de la memoria del proyecto.
 
 [[Catálogo técnico|Consultar componentes, servicios y contratos reutilizables]]
 
+### Seguridad, coste y cumplimiento
+
+[[Seguridad/Seguridad.base|Abrir el panel de seguridad]] ·
+[[Seguridad/Checklist de lanzamiento|Checklist de lanzamiento]]
+
 ## Próximos sistemas
 
 - Decisiones visuales y de estilos.
