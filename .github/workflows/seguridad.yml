@@ -1,6 +1,7 @@
 # Comprobaciones del sistema «Seguridad, coste y cumplimiento» (docs/README.md).
-# La base de datos se construye en el runner solo con las migraciones del repo;
-# ningún job se conecta al proyecto Supabase remoto compartido.
+# Las bases de datos se construyen en el runner solo con las migraciones del repo,
+# con los mismos scripts que en local; ningún job se conecta al proyecto Supabase
+# remoto compartido.
 name: Seguridad
 on: [pull_request, push]
 
@@ -12,12 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          version: 2.110.0
-      - run: supabase db start
-      - run: supabase db reset --local --no-seed
-      - run: supabase test db --local
+          node-version: 24.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:security:db:local
 
   a11y:
     runs-on: ubuntu-latest
@@ -32,4 +34,4 @@ jobs:
       - run: pnpm run build
       - run: pnpm run check:bundle-secrets
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm run test:a11y
+      - run: pnpm run test:a11y:local

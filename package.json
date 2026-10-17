@@ -16,6 +16,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:a11y": "playwright test",
+    "test:a11y:local": "node scripts/test-a11y-local.mjs",
     "test:security:db": "supabase test db --local",
     "test:security:db:local": "node scripts/test-security-db-local.mjs",
     "check:bundle-secrets": "node scripts/check-bundle-secrets.mjs",

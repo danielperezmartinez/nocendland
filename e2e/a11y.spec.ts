@@ -1,8 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import {expect, test} from '@playwright/test';
 
-// Rutas públicas que se analizan con AXE. Las rutas tras inicio de sesión
-// necesitan un usuario de prueba en una pila local de Supabase (pendiente).
+// Rutas públicas que se analizan con AXE. Las rutas tras inicio de sesión están en
+// a11y-authenticated.spec.ts y se ejecutan con `pnpm run test:a11y:local`.
 const publicRoutes = [
   {path: '/auth', ready: 'button'},
   {path: '/privacy', ready: 'h1'},

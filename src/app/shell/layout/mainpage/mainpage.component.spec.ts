@@ -6,6 +6,7 @@ import {AuthService} from '@platform/auth/auth.service';
 import {createAuthServiceStub} from '@testing/auth-service.stub';
 import {provideRouter} from '@angular/router';
 import {AppUpdateService} from '@platform/browser/app-update.service'
+import {SideNavService} from '@shell/state/side-nav.service'
 
 describe('MainpageComponent', () => {
   let component: MainpageComponent;
@@ -48,5 +49,17 @@ describe('MainpageComponent', () => {
     fixture.detectChanges()
     expect(updateButton.disabled).toBe(true)
     expect(fixture.nativeElement.querySelector('.app-shell__version').textContent).toContain('Comprobando…')
+  })
+
+  it('keeps the closed navigation out of the keyboard focus order', () => {
+    const navigation: HTMLElement = fixture.nativeElement.querySelector('#primary-navigation')
+    const scrim: HTMLElement = fixture.nativeElement.querySelector('.app-shell__scrim')
+    expect(navigation.inert).toBe(true)
+    expect(scrim.inert).toBe(true)
+
+    TestBed.inject(SideNavService).open()
+    fixture.detectChanges()
+    expect(navigation.inert).toBe(false)
+    expect(scrim.inert).toBe(false)
   })
 });

@@ -25,14 +25,16 @@
       transform var(--duration-fast) var(--ease-standard);
   }
 
+  // El texto sobre fondo de área usa el tono fuerte para cumplir WCAG AA (4.5:1)
+  // en todas las áreas; el acento base queda para bordes, iconos y decoración.
   .ui-button {
     padding-inline: var(--space-5);
-    background: var(--area-accent);
+    background: var(--area-accent-strong);
     color: var(--color-text-inverse);
   }
 
   .ui-button:hover {
-    background: var(--area-accent-strong);
+    background: var(--area-accent-ink);
     transform: translateY(-1px);
   }
 
@@ -262,7 +264,7 @@
   }
 
   .ui-segmented-input .ui-segmented-input__option--active {
-    background: var(--area-accent);
+    background: var(--area-accent-strong);
     color: var(--color-text-inverse);
   }
 

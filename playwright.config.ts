@@ -18,7 +18,9 @@ export default defineConfig({
   webServer: {
     command: `pnpm exec ng serve --port ${port}`,
     url: `http://localhost:${port}/auth`,
-    reuseExistingServer: !process.env['CI'],
+    // Siempre arranca su propio servidor desde este directorio: reutilizar uno
+    // existente podría servir otra copia del repo.
+    reuseExistingServer: false,
     timeout: 180_000,
   },
 });
