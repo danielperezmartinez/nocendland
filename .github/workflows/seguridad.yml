@@ -1,15 +1,66 @@
-# Comprobaciones del sistema «Seguridad, coste y cumplimiento» (docs/README.md).
-# Las bases de datos se construyen en el runner solo con las migraciones del repo,
-# con los mismos scripts que en local; ningún job se conecta al proyecto Supabase
-# remoto compartido.
+# Comprobaciones de los sistemas «Seguridad, coste y cumplimiento» y «Publicación»
+# (docs/README.md; el flujo de publicación está en su sección Publicación). Las bases de datos se construyen en el runner solo con las
+# migraciones del repo, con los mismos scripts que en local; ningún job se conecta
+# al proyecto Supabase remoto compartido.
 name: Seguridad
 on: [pull_request, push]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  # En la rama principal no se cancela: un push de la bóveda no debe interrumpir
+  # el CI de una integración de código.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  # Detecta si hay cambios fuera de docs/. Los jobs de código dependen de él: un
+  # check obligatorio omitido con `if` cuenta como superado, así que un cambio de
+  # solo bóveda no deja la rama en rojo.
+  cambios:
+    runs-on: ubuntu-latest
+    outputs:
+      codigo: ${{ steps.diff.outputs.codigo }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        # Si el diff no se puede calcular, se trata como código.
+        run: |
+          if git diff --quiet "$BASE_SHA" HEAD -- . ':(exclude)docs' 2>/dev/null; then
+            echo "codigo=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "codigo=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  verificar:
+    needs: cambios
+    if: needs.cambios.outputs.codigo == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+      - name: La versión supera la de la rama principal
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/check-version.mjs "$BASE_SHA"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec ng test --watch=false
+
   rls:
+    needs: cambios
+    if: needs.cambios.outputs.codigo == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +73,8 @@ jobs:
       - run: pnpm run test:security:db:local
 
   a11y:
+    needs: cambios
+    if: needs.cambios.outputs.codigo == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,3 +88,22 @@ jobs:
       - run: pnpm run check:bundle-secrets
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run test:a11y:local
+
+  # Revisión de fugas: corre siempre, también en cambios de solo bóveda. Solo usa
+  # los patrones genéricos; los personales viven fuera del repo (hooks locales).
+  fugas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (historial, mensajes, rama y PR)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          # El texto de la PR va por variable de entorno, nunca interpolado en el script.
+          PR_TEXTO: ${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}
+          RAMA: ${{ github.head_ref || github.ref_name }}
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks git --redact --no-banner --config .gitleaks.toml
+          { git log --format=%B; printf '%s\n%s\n' "$RAMA" "$PR_TEXTO"; } | ./gitleaks stdin --redact --no-banner --config .gitleaks.toml

@@ -1,0 +1,2 @@
+# Los hooks se ejecutan con sh: con CRLF fallan en Linux y macOS.
+.githooks/* text eol=lf

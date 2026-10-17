@@ -1,0 +1,18 @@
+#!/bin/sh
+# Comprueba a qué rama se sube y revisa los commits, sus mensajes y los nombres de
+# rama. Reglas en docs/README.md, secciones "Publicación" y "Repositorio y publicación".
+# git pasa por stdin una línea por rama: <ref local> <sha local> <ref remota> <sha remota>.
+. "$(dirname "$0")/_gitleaks.sh"
+. "$(dirname "$0")/_rama_principal.sh"
+cero=0000000000000000000000000000000000000000
+while read -r ref_local sha_local ref_remota sha_remota; do
+  comprobar_rama_principal "$ref_local" "$sha_local" "$ref_remota" "$sha_remota"
+  [ "$sha_local" = "$cero" ] && continue # borrado de rama: no se sube contenido
+  if [ "$sha_remota" = "$cero" ]; then
+    rango="$sha_local --not --remotes"
+  else
+    rango="$sha_remota..$sha_local"
+  fi
+  escanear git --log-opts="$rango"
+  { git log --format=%B $rango; printf '%s\n%s\n' "$ref_local" "$ref_remota"; } | escanear_texto || exit 1
+done
