@@ -14,6 +14,9 @@ properties:
   Objeto: { displayName: Objeto }
   Resumen: { displayName: Resumen }
   Revisar antes de: { displayName: Revisar antes de }
+  Severidad: { displayName: Severidad }
+  Aviso: { displayName: Aviso }
+  Versión del arreglo: { displayName: Versión del arreglo }
   formula.updated_display: { displayName: Modificada }
 views:
   - type: table
@@ -40,3 +43,12 @@ views:
       and:
         - Tipo == "Checklist"
     order: [file.name, Estado, Resumen, formula.updated_display]
+  - type: table
+    name: Hallazgos privados
+    filters:
+      and:
+        - Tipo == "Hallazgo"
+    order: [file.name, Estado, Severidad, Aviso, Versión del arreglo, formula.updated_display]
+    sort:
+      - property: file.name
+        direction: DESC

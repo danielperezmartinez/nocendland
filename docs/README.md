@@ -54,9 +54,9 @@ Notas en `Catálogo técnico/`, indexadas por [[Catálogo técnico]], que contie
 
 ### Seguridad, coste y cumplimiento
 
-_Versión del sistema: 1._
+_Versión del sistema: 3._
 
-Carpeta [[Seguridad/Seguridad.base|Seguridad/]]: excepciones justificadas a estas reglas y la [[Seguridad/Checklist de lanzamiento|checklist de lanzamiento]].
+Carpeta [[Seguridad/Seguridad.base|Seguridad/]]: excepciones justificadas a estas reglas, la [[Seguridad/Checklist de lanzamiento|checklist de lanzamiento]] y, como el repo es público, las referencias opacas a hallazgos privados.
 Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también a lo que se haga con MCP, CLI o panel.
 
 #### Backend y datos (Supabase)
@@ -82,6 +82,30 @@ Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también 
 - La clave publicable (`anon` / `sb_publishable_…`) puede ir en el cliente.
 - La clave secreta (`service_role` / `sb_secret_…`) y cualquier otro secreto solo viven en el servidor o en el CI, nunca en el código del cliente ni en el repo.
 - Cada secreto está solo en los entornos que lo necesitan (p. ej. Production y no Preview si las previews no lo usan), marcado como sensible donde la plataforma lo permita.
+- Los ficheros de secretos locales (`.env*` salvo `.env.example`, keystores, claves) están en `.gitignore`.
+
+#### Repositorio y publicación
+
+- Todo lo que se sube queda expuesto y **no se puede retirar**: el código, esta bóveda `docs/`, los mensajes de commit, los nombres de rama, los títulos y cuerpos de PR, las issues, los workflows, los logs y artefactos de CI. Borrarlo después no lo quita del historial, de los forks ni de las cachés.
+- **Nunca se sube:**
+  - Secretos: claves, contraseñas, tokens, ficheros `.env`, keystores.
+  - Datos del entorno personal: nombres de host, de máquina o de dispositivo, usuarios del sistema operativo, IP (de red local, VPN o públicas), dominios y redes propios, rutas personales (`C:\Users\<nombre>`, `/home/<nombre>`, unidades y carpetas propias) y correos personales.
+  - Vulnerabilidades sin corregir (ver "Vulnerabilidades y hallazgos sensibles").
+- En la documentación se usan **marcadores genéricos** (`<usuario>`, `<host-de-pruebas>`, `<ruta-al-proyecto>`). Los valores reales viven fuera del repo: variables de entorno, la memoria local del agente (que no se versiona) o el fichero de patrones personales.
+- **Antes de cada commit y de cada push** se revisan el diff y los mensajes. Los hooks versionados en `.githooks/` lo comprueban con gitleaks (patrones genéricos de `.gitleaks.toml` y patrones personales fuera del repo, en `~/.config/gitleaks/personal.toml` o en la ruta de `GITLEAKS_PERSONAL_CONFIG`), y el CI lo repite. `pnpm install` los activa (`core.hooksPath`) mediante el script `prepare`. Los hooks no se saltan (`--no-verify`) sin permiso explícito del usuario. Un falso positivo se resuelve ajustando el patrón o con `gitleaks:allow` en esa línea, nunca desactivando la revisión.
+- Los logs de CI no imprimen secretos ni datos personales. Los secretos de CI van en los secretos de la plataforma (GitHub Secrets), y el CI no depende de máquinas, redes ni cuentas personales del usuario.
+- **Si algo sensible llega a subirse:** se avisa al usuario **de inmediato**. No se reescribe el historial ni se fuerza un push sin su permiso explícito. Si era un secreto, se da por comprometido y se revoca o se rota, aunque se borre del repo.
+
+#### Vulnerabilidades y hallazgos sensibles
+
+- **Criterio.** Un hallazgo es sensible si describe cómo dañar, espiar o engañar a usuarios de la versión publicada y todavía no hay una versión publicada que lo corrija. Ante la duda, es sensible.
+- **Dónde vive.** Cada hallazgo sensible es un **aviso privado de GitHub** (*Security Advisory* en borrador, pestaña *Security* del repo), uno por hallazgo. Es su única fuente de verdad mientras no se publique.
+- **Qué nunca lo cuenta** mientras no se publique el arreglo: esta bóveda, los mensajes de commit, los nombres de rama, los títulos y cuerpos de PR, las issues, los comentarios de código y los nombres de test.
+- **En la bóveda** solo hay una referencia opaca: una nota `SEC-AAAA-NN` (correlativo por año, no se reutiliza) de tipo `Hallazgo` en `Seguridad/`, con severidad, estado, el ID `GHSA-…` del aviso y la versión que lo corrige. Nunca un título ni una descripción.
+- **El arreglo** se prepara en local, con mensajes de commit, nombres de rama y nombres de test neutros que no expliquen el fallo, y se sube junto con la publicación de la versión que lo corrige. Entonces se publica el aviso y la nota pasa a `Publicado`; desde ese momento ya se puede describir.
+- **Los agentes no crean, publican ni cierran avisos por su cuenta.** Preparan el borrador del aviso y el usuario lo da de alta, o lo autoriza en esa sesión. Publicar un aviso es irreversible.
+- Lo no sensible (endurecimiento, CVE públicos de dependencias) se gestiona con tareas normales.
+- Estados de una nota `Hallazgo`: `Abierto` · `Corregido` · `Publicado` · `Descartado`. `Corregido` significa que el arreglo está listo pero aún no publicado: sigue siendo sensible. Al pasar a `Publicado` (arreglo publicado y aviso publicado por el usuario), la nota ya puede enlazar el aviso y describir el fallo.
 
 #### Legal y privacidad (UE / España)
 
@@ -98,10 +122,37 @@ Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también 
 
 #### Comprobaciones y compuerta de "Hecha"
 
-- Comprobaciones del proyecto: `pnpm run test:security:db:local` (pgTAP sobre una base local de Docker construida solo con las migraciones, con puertos propios; tests en `supabase/tests/`), `pnpm run test:a11y:local` (AXE con Playwright en las rutas públicas y en las autenticadas, contra una pila local de Supabase a la que se redirigen todas las peticiones de la app; specs en `e2e/`) y `pnpm run check:bundle-secrets` tras `pnpm run build`. Las tres se ejecutan en `.github/workflows/seguridad.yml`, y sus jobs `rls` y `a11y` son obligatorios para fusionar en `main` (flujo en la regla 3 de «Reglas fundamentales del proyecto»). Ninguna se ejecuta contra el proyecto remoto compartido.
+- Comprobaciones del proyecto: `pnpm run test:security:db:local` (pgTAP sobre una base local de Docker construida solo con las migraciones, con puertos propios; tests en `supabase/tests/`), `pnpm run test:a11y:local` (AXE con Playwright en las rutas públicas y en las autenticadas, contra una pila local de Supabase a la que se redirigen todas las peticiones de la app; specs en `e2e/`), `pnpm run check:bundle-secrets` tras `pnpm run build` y gitleaks en `.githooks/` y en el job `fugas`. Todas se ejecutan en `.github/workflows/seguridad.yml` y ninguna contra el proyecto remoto compartido.
 - La base local de pruebas retira `pg_net`, que la imagen de Supabase trae con permisos para `anon` y que `devappsdpm-db` no tiene instalado. Por eso ninguna migración puede instalar `pg_net` o `http`: los scripts locales fallan si lo detectan, y hay que revisar sus permisos antes.
 - **Una tarea que toque backend o UI no pasa a `Hecha`** hasta que esas comprobaciones estén en verde, y su sección "Verificación" lo deja escrito (qué se ejecutó y dónde). Si el cambio añade tablas, políticas, funciones o rutas, añade también su test en el mismo cambio.
+- **Ninguna tarea pasa a `Hecha` con commits sin revisar:** los hooks de gitleaks han pasado en cada commit y push, y el job de fugas del CI está en verde.
 - Una excepción a estas reglas es una nota `Excepción` en `Seguridad/` con su justificación. Sin nota, no hay excepción.
+- Sus jobs son checks obligatorios para integrar en la rama principal; el flujo de publicación está en la sección [[#Publicación]] y no se repite aquí.
+
+### Publicación
+
+_Versión del sistema: 1._
+
+Esta es la única regla de publicación del proyecto; las demás secciones la enlazan en vez de repetirla. Aplica la política común de publicación de las cuatro webs del usuario, decidida el 2026-10-17.
+
+| Cambio | Cómo se publica | Versión | Despliegue |
+| --- | --- | --- | --- |
+| **Código**: cualquier archivo fuera de `docs/` | Rama corta y pull request contra `main`, integrada con squash | Sube en la propia PR | Production al integrar en `main`, verificado en Vercel |
+| **Solo bóveda**: todo dentro de `docs/` | Commit y push directo a `main` | No cambia | Ninguno: el `ignoreCommand` de `vercel.json` omite la build |
+
+- Un commit o una PR que mezcle bóveda y código cuenta como **código**.
+- **Nunca se hace push directo de código a `main`**, aunque GitHub lo permita a administradores (`enforce_admins=false`, para que la bóveda pueda publicarse con la cuenta compartida). `main` exige PR (sin aprobaciones) y los checks `cambios`, `verificar`, `rls`, `a11y` y `fugas`, actualizados con `main`, para integrar; un push directo se desplegaría sin esperarlos. La guarda de `.githooks/pre-push` lo impide en local; no se salta (`--no-verify`) sin permiso explícito del usuario.
+- **Integración solo por squash.** El repo tiene desactivados el merge commit, el rebase y el auto-merge, y borra la rama al integrar.
+- **Cada PR de código sube la versión** de `package.json` con `pnpm version patch|minor|major --no-git-tag-version` y no se integra si no supera la de `main` (lo comprueba el job `verificar`). El agente propone el incremento según los commits (Conventional Commits: `major` para cambios incompatibles, `minor` para funcionalidades compatibles, `patch` para correcciones, mantenimiento y cambios internos) y **el usuario lo aprueba antes de abrir la PR**, sin inferirlo del silencio; el acuerdo queda en la PR. Un `major` requiere siempre autorización expresa, después de explicar qué incompatibilidades lo justifican. Si la PR recibe más commits antes de integrarse, no se vuelve a subir.
+- **Las PR de Dependabot son código:** el agente añade la subida `patch` y la integra con autorización, como cualquier otra.
+- **Publicar código** (o «desplegar», «hacer deploy») significa: rama corta (`feat/*`, `fix/*`, `chore/*`, `docs/*`), PR con GitHub CLI contra `main`, esperar los checks, integrarla con squash solo si el usuario lo autorizó para esa PR (si no, detenerse con la PR abierta) y verificar el despliegue.
+- **Publicar la bóveda** significa: commit y push directo a `main`, sin PR, sin subir la versión y sin despliegue.
+- **Verificar el despliegue**: localizar en Vercel el despliegue de producción del commit exacto de `main` y supervisarlo hasta su estado final; solo `READY` lo da por completado. Ante `ERROR`, revisar sus logs, **avisar al usuario con un reporte y detenerse**: no reintentar, redesplegar ni hacer rollback por iniciativa propia. La corrección es una PR nueva con su propia versión. Sin acceso a Vercel, se comunica el bloqueo y no se da el despliegue por bueno.
+- Los commits, incluidos los squash que hace GitHub, usan el correo privado de la forja (`…@users.noreply.github.com`), nunca uno personal. El historial ya publicado no se reescribe.
+- Cada agente o sesión solo incluye en su commit lo que hizo dentro de su alcance; otras modificaciones sin commit del workspace pertenecen a sus sesiones. Se preparan rutas explícitas (nunca `git add .` ni `git add -A`) y se revisa el diff staged; si un archivo mezcla cambios de varias sesiones, solo se preparan los hunks propios o se detiene el commit e informa. El mensaje describe de forma concreta el cambio de esa sesión.
+- Las migraciones y funciones Edge del backend compartido `devappsdpm-db` (con outify y gift-card) se aplican aparte, con autorización expresa, antes de integrar el código que las necesita. El fichero de migración del repo lleva la misma versión que el historial remoto; si la herramienta asigna otra, se renombra el fichero.
+- Una tarea de código no pasa a `Hecha` hasta que su PR está integrada y el despliegue verificado; su sección "Verificación" anota la PR, el commit y el estado del despliegue. Si la PR espera autorización, la tarea sigue `En curso`.
+- Configuración: protección de `main` con PR obligatoria sin aprobaciones, checks estrictos, historial lineal, sin exigir resolver conversaciones, sin force push ni borrado y `enforce_admins=false`; en el repo, solo squash, borrado de rama al integrar y auto-merge desactivado; `ignoreCommand` en `vercel.json`; job `cambios` en el CI, del que dependen `verificar`, `rls` y `a11y` (`fugas` corre siempre); guarda en `.githooks/pre-push`. Su estado está en la [[Seguridad/Checklist de lanzamiento|checklist de lanzamiento]].
 
 ## Reglas fundamentales del proyecto
 
@@ -134,32 +185,9 @@ Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también 
 - RxJS solo debe utilizarse cuando el problema sea realmente un flujo de eventos o una API basada en Observables. En los límites con RxJS se deben usar las utilidades oficiales de interoperabilidad, como `toSignal()` y `toObservable()`, manteniendo Signals como representación principal del estado de la aplicación.
 - Toda modificación de componentes, servicios, formularios, navegación o acceso a datos debe revisarse expresamente para asegurar que conserva el funcionamiento zoneless y actualiza la interfaz mediante Signals.
 
-### 3. El código se publica por pull request y todo deploy debe verificarse
+### 3. Publicación
 
-Esta regla es la única fuente del flujo de publicación; las demás secciones la enlazan.
-
-| Cambio | Cómo se publica | Versión | Despliegue |
-| --- | --- | --- | --- |
-| **Código**: cualquier archivo fuera de `docs/` | Rama propia y pull request contra `main`; se fusiona solo con los jobs `rls` y `a11y` del workflow `Seguridad` en verde | Se incrementa en la propia PR | Al fusionar en `main`; se verifica en Vercel |
-| **Solo bóveda**: todos los archivos dentro de `docs/` | Push directo a `main` | No se incrementa | No hay: `vercel.json` omite el build cuando el commit no cambia nada fuera de `docs/` |
-
-- **Nunca se hace push directo a `main` de un cambio que toque código**, aunque GitHub lo permita a los administradores. Un commit que mezcle bóveda y código cuenta como código.
-- `main` exige `rls` y `a11y` en verde para fusionar. El workflow también se ejecuta en cada push, pero un push directo se despliega sin esperar a su resultado; por eso el código va siempre por PR.
-- **Cada PR de código incrementa la versión de `package.json`.** Una PR no se fusiona si su versión no supera la de `main`.
-- El incremento debe seguir Semantic Versioning y elegirse según el alcance real del cambio:
-  - `patch` para correcciones, mantenimiento, refactors compatibles y cambios internos sin nuevas capacidades públicas.
-  - `minor` para funcionalidades nuevas compatibles con versiones anteriores.
-  - `major` para cambios incompatibles, eliminaciones o migraciones que requieran adaptación.
-- **Un incremento `major` requiere siempre autorización previa y explícita del usuario.** Antes de ejecutar el comando, el agente debe explicar qué incompatibilidades justifican el `major` y qué impacto tendrá. Una petición genérica de commit, push o despliegue no cuenta como autorización para un `major`.
-- Se debe utilizar exclusivamente `pnpm version patch|minor|major --no-git-tag-version`; siguen prohibidos `npm version` y cualquier uso de npm.
-- El cambio de versión debe incluirse en la misma PR que se va a desplegar. Si la PR recibe más commits antes de fusionarse, no hace falta volver a incrementar la versión.
-- Cuando el usuario pida «desplegar», «hacer deploy» o una formulación equivalente para un cambio de código, está solicitando el flujo completo de publicación: aplicar el incremento SemVer correspondiente, crear los commits en una rama propia, hacer push de esa rama, abrir la PR con GitHub CLI, esperar a que `rls` y `a11y` estén en verde, fusionarla y verificar el despliegue. Si el usuario no ha autorizado fusionar, el agente se detiene con la PR abierta e informa. Si el cambio solo toca `docs/`, «publicar» significa hacer commit y push directo a `main`.
-- Cada agente o sesión solo puede incluir en su commit los archivos y cambios que haya realizado dentro de su propio alcance. La existencia de otras modificaciones sin commit en el mismo workspace no autoriza a incorporarlas: pertenecen a sus sesiones responsables y deben conservarse para commits separados.
-- Antes de crear el commit se deben preparar rutas explícitas y revisar el diff staged. No se permiten comandos de staging indiscriminado como `git add .`, `git add -A` o equivalentes en un workspace compartido. Si un mismo archivo contiene cambios mezclados de varias sesiones, se preparan únicamente los hunks propios; si no es posible atribuirlos con seguridad, se detiene el commit y se informa del conflicto.
-- El mensaje del commit debe describir de forma concreta y apropiada los cambios de esa sesión; no se utilizan mensajes genéricos que oculten o amplíen el alcance real.
-- Fusionar una PR no completa por sí solo una petición de despliegue. Después se debe localizar en Vercel el deployment de producción asociado al commit de `main` y supervisarlo hasta que alcance un estado terminal.
-- El despliegue solo se considera completado correctamente cuando Vercel informa el estado `READY`. Si termina en `ERROR`, se deben inspeccionar sus detalles o logs, informar de la causa y continuar con la corrección cuando esté dentro del alcance autorizado; cada corrección es una PR nueva con su propio incremento de versión. Si no existe acceso para consultar Vercel, se debe comunicar el bloqueo y no asumir que el despliegue ha terminado correctamente.
-- Los cambios de base de datos o de funciones Edge en el Supabase compartido se aplican aparte y solo con autorización expresa del usuario. Se aplican antes de fusionar el frontend que los necesita, y la migración del repo debe llevar la misma versión que registra el ledger remoto.
+Cómo se publica el código y la bóveda, la versión y la verificación del despliegue están en la sección [[#Publicación]] de «Sistemas disponibles», que es la única fuente de esa regla.
 
 ### 4. Código en inglés y comentarios en español
 
@@ -263,7 +291,7 @@ src/app/
 ### Despliegue
 
 - Vercel es la plataforma de despliegue del frontend. `vercel.json` declara Angular, instala con `corepack pnpm install --frozen-lockfile` y construye con `corepack pnpm run build`.
-- Vercel despliega cada commit de `main` en producción y cada rama en una preview. Su `ignoreCommand` omite el build cuando el commit no cambia nada fuera de `docs/`; si la comprobación falla (por ejemplo, sin commit anterior), se construye igualmente. El flujo de publicación es el de la regla 3.
+- Vercel despliega cada commit de `main` en producción y cada rama en una preview. Su `ignoreCommand` omite el build cuando el commit no cambia nada fuera de `docs/`; si la comprobación falla (por ejemplo, sin commit anterior), se construye igualmente. El flujo de publicación está en [[#Publicación]].
 - La configuración antigua de Railway y Nixpacks se eliminó; no debe reintroducirse salvo una decisión explícita futura.
 - Supabase continúa siendo un servicio externo a Vercel: no se despliega ni se replica como parte del frontend.
 
