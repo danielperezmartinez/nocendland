@@ -1,11 +1,11 @@
 ---
 Nombre: Completar las comprobaciones de seguridad
-Estado: En curso
+Estado: Hecha
 Resumen: Las comprobaciones del sistema de seguridad ya están montadas, pero el test de catálogo falla en local por pg_net (preinstalado en la imagen local y ausente en el remoto) y por el bucket no versionado, AXE solo cubre las rutas públicas y el workflow de CI todavía no es obligatorio en la rama principal.
 Decisiones: "pg_net se retira solo de la base local de pruebas, porque una migración ejecutada como postgres no puede revocar los permisos que concede supabase_admin; a cambio, los scripts fallan si una migración instala pg_net o http. Para cumplir WCAG AA, los botones principales y los estados activos con texto usan el tono fuerte del área; el acento base queda para decoración."
 Bloqueada: []
 Fecha de creación: 2026-10-16T23:23:13+02:00
-Última modificación: 2026-10-17T14:40:00+02:00
+Última modificación: 2026-10-17T16:30:00+02:00
 ---
 
 # Completar las comprobaciones de seguridad
@@ -45,6 +45,6 @@ Las comprobaciones se montaron el 2026-10-16 con el sistema «Seguridad, coste y
 - `pnpm run build` y `pnpm run check:bundle-secrets`: correctos.
 - `pnpm test`: 179/179.
 
-## Pendiente
+## Cierre (2026-10-17)
 
-El workflow `Seguridad` pasó en GitHub en la PR y en `main` (2026-10-17). `main` no tiene protección de rama: falta que el usuario decida activarla y marcar `rls` y `a11y` como obligatorios.
+El workflow `Seguridad` pasó en GitHub en la PR #1 y en `main`. `main` exige ahora los checks `rls` y `a11y` (GitHub Actions) y una rama al día para fusionar, sin obligar a los administradores, para permitir el push directo de los cambios de bóveda. El flujo queda en la regla 3 del `README.md`.
