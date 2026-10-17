@@ -4,7 +4,7 @@ Tipo: Checklist
 Estado: Pendiente
 Resumen: Estado de la configuración fuera del código (gasto, Auth, firewall, secretos, plan, GitHub y legal) que ningún test del repo comprueba. Pendiente de la primera revisión en los paneles; los valores ya conocidos proceden de la auditoría de solo lectura del 2026-10-16.
 Última revisión: 2026-10-16
-Última modificación: 2026-10-17T16:40:00+02:00
+Última modificación: 2026-10-17T17:05:00+02:00
 ---
 
 # Checklist de lanzamiento
@@ -41,8 +41,8 @@ Marca cada punto al revisarlo en el panel y anota el valor real. Al terminar, `E
 - [x] Secret scanning activado (2026-10-17).
 - [x] Push protection activado (2026-10-17).
 - [ ] Private vulnerability reporting activado. Desactivado a 2026-10-17.
-- [ ] Protección de la rama principal según [[README#Publicación|Publicación]], con los jobs de seguridad (incluido `fugas`) como obligatorios. A 2026-10-17 solo exige `rls` y `a11y`.
-- [ ] Hooks activos en cada clon de trabajo (`git config core.hooksPath` apunta a `.githooks`) y gitleaks instalado; fichero de patrones personales creado fuera del repo.
+- [x] Protección de la rama principal según [[README#Publicación|Publicación]], con los jobs de seguridad (incluido `fugas`) como obligatorios. Aplicada el 2026-10-17.
+- [x] Hooks activos en cada clon de trabajo (`git config core.hooksPath` apunta a `.githooks`) y gitleaks instalado; fichero de patrones personales creado fuera del repo. Comprobado el 2026-10-17 en el clon de trabajo del agente; `pnpm install` los activa en cada clon.
 - [ ] Alertas de Dependabot activadas. Desactivadas a 2026-10-17.
 
 ## Legal y privacidad
@@ -61,3 +61,4 @@ Marca cada punto al revisarlo en el panel y anota el valor real. Al terminar, `E
 | --- | --- | --- |
 | 2026-10-16 | Agente (auditoría de solo lectura) | Valores conocidos anotados; paneles de Supabase (Spend Cap, alertas, Auth) y Vercel sin revisar. |
 | 2026-10-17 | Agente | Decisión de acceso abierto con topes, páginas legales y pg_net anotados; paneles sin revisar. |
+| 2026-10-17 | Agente | Sección GitHub añadida; protección de `main` y ajustes del repo aplicados con el OK del usuario. Siguen pendientes el private vulnerability reporting y Dependabot. |
