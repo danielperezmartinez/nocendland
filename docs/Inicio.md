@@ -17,6 +17,10 @@ Este es el nexo de navegación de la memoria del proyecto.
 [[Seguridad/Seguridad.base|Abrir el panel de seguridad]] ·
 [[Seguridad/Checklist de lanzamiento|Checklist de lanzamiento]]
 
+### Publicación
+
+Reglas en [[README#Publicación|README → Publicación]].
+
 ## Próximos sistemas
 
 - Decisiones visuales y de estilos.

@@ -2,9 +2,9 @@
 Nombre: Checklist de lanzamiento
 Tipo: Checklist
 Estado: Pendiente
-Resumen: Estado de la configuración fuera del código (gasto, Auth, firewall, secretos, plan y legal) que ningún test del repo comprueba. Pendiente de la primera revisión en los paneles; los valores ya conocidos proceden de la auditoría de solo lectura del 2026-10-16.
+Resumen: Estado de la configuración fuera del código (gasto, Auth, firewall, secretos, plan, GitHub y legal) que ningún test del repo comprueba. Pendiente de la primera revisión en los paneles; los valores ya conocidos proceden de la auditoría de solo lectura del 2026-10-16.
 Última revisión: 2026-10-16
-Última modificación: 2026-10-17T09:46:56+02:00
+Última modificación: 2026-10-17T16:40:00+02:00
 ---
 
 # Checklist de lanzamiento
@@ -34,6 +34,16 @@ Marca cada punto al revisarlo en el panel y anota el valor real. Al terminar, `E
 - [ ] Firewall: reglas de límite de peticiones en rutas públicas y de API.
 - [ ] Deployment Protection en Preview si las previews no deben ser públicas.
 - [ ] Variables secretas solo en los entornos que las usan (no en Preview si no hace falta) y marcadas como sensibles.
+
+## GitHub (`danielperezmartinez/nocendland`)
+
+- [x] Visibilidad del repo conocida y coherente con las reglas de "Repositorio y publicación": público (2026-10-17).
+- [x] Secret scanning activado (2026-10-17).
+- [x] Push protection activado (2026-10-17).
+- [ ] Private vulnerability reporting activado. Desactivado a 2026-10-17.
+- [ ] Protección de la rama principal según [[README#Publicación|Publicación]], con los jobs de seguridad (incluido `fugas`) como obligatorios. A 2026-10-17 solo exige `rls` y `a11y`.
+- [ ] Hooks activos en cada clon de trabajo (`git config core.hooksPath` apunta a `.githooks`) y gitleaks instalado; fichero de patrones personales creado fuera del repo.
+- [ ] Alertas de Dependabot activadas. Desactivadas a 2026-10-17.
 
 ## Legal y privacidad
 

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Revisa lo preparado para el commit en busca de secretos y datos personales.
+. "$(dirname "$0")/_gitleaks.sh"
+escanear git --pre-commit --staged

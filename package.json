@@ -1,6 +1,6 @@
 {
   "name": "nocendland",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": "24.x",
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "ng": "ng",
+    "prepare": "git config core.hooksPath .githooks || exit 0",
     "start": "ng serve",
     "build": "node scripts/check-style-tokens.mjs && node scripts/check-technical-catalog.mjs && ng build --configuration=production",
     "check:styles": "node scripts/check-style-tokens.mjs",
@@ -20,6 +21,7 @@
     "test:security:db": "supabase test db --local",
     "test:security:db:local": "node scripts/test-security-db-local.mjs",
     "check:bundle-secrets": "node scripts/check-bundle-secrets.mjs",
+    "check:version": "node scripts/check-version.mjs",
     "generate-types": "pnpm exec supabase gen types typescript --project-id zckqbrwdgxohdymiwbfz --schema nocendland > ./src/app/platform/supabase/database.types.ts",
     "security:audit": "pnpm audit --audit-level high",
     "security:builds": "pnpm ignored-builds"

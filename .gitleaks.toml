@@ -1,0 +1,57 @@
+title = "Patrones genéricos del proyecto"
+
+# Reglas en docs/README.md, sección "Repositorio y publicación".
+# Solo patrones genéricos: los nombres concretos del entorno personal viven en
+# un fichero fuera del repo (ver .githooks/_gitleaks.sh).
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "supabase-clave-secreta"
+description = "Clave secreta de Supabase"
+regex = '''sb_secret_[A-Za-z0-9_-]{16,}'''
+keywords = ["sb_secret_"]
+
+[[rules]]
+id = "ruta-personal-windows"
+description = 'Ruta personal de Windows (C:\Users\<nombre>)'
+regex = '''(?i)\b[a-z]:[\\/]+users[\\/]+[a-z0-9._-]+'''
+keywords = ["users"]
+[[rules.allowlists]]
+stopwords = ["public", "default"]
+
+# secretGroup es necesario: la lista de permitidos global de gitleaks ignora
+# cualquier secreto que empiece por /home/ o /Users/.
+[[rules]]
+id = "ruta-personal-unix"
+description = "Ruta personal de Linux o macOS (/home/<nombre>, /Users/<nombre>)"
+regex = '''/(?:home|Users)/([A-Za-z0-9._-]+)'''
+secretGroup = 1
+keywords = ["/home/", "/users/"]
+[[rules.allowlists]]
+stopwords = ["runner", "shared"]
+
+[[rules]]
+id = "ip-privada"
+description = "IP de red local o de Tailscale"
+regex = '''\b(?:10\.\d{1,3}|192\.168|172\.(?:1[6-9]|2\d|3[01])|100\.(?:6[4-9]|[7-9]\d|1[01]\d|12[0-7]))\.\d{1,3}\.\d{1,3}\b'''
+
+# La clave publicable de Supabase es pública por diseño (va en el bundle del cliente).
+[[allowlists]]
+description = "Clave publicable de Supabase"
+regexTarget = "match"
+regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
+
+# Commits antiguos con la clave anon (rol anon, pública por diseño) del proyecto
+# Supabase legado. Revisados el 2026-10-17: ninguno contiene una clave secreta.
+[[allowlists]]
+description = "Clave anon del proyecto Supabase legado en el historial"
+targetRules = ["jwt"]
+commits = [
+  "4e7c98b5b6d398fdb38ea40f21675492ef0a8b6e",
+  "0b3ab93a3f3d5883429183f8f680441fb50e6a48",
+  "b07959e9c9d4cc3676569853f73c20cce784eb9e",
+  "44d594f5ba37df048e13f9a80c651ae17ce166e3",
+  "b921068effbc0a94d87fef05bb54babaf213e9ff",
+]

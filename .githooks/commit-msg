@@ -1,0 +1,4 @@
+#!/bin/sh
+# Revisa el mensaje del commit: también es público.
+. "$(dirname "$0")/_gitleaks.sh"
+escanear_texto < "$1"
