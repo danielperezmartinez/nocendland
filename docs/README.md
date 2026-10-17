@@ -98,7 +98,7 @@ Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también 
 
 #### Comprobaciones y compuerta de "Hecha"
 
-- Comprobaciones del proyecto: `pnpm run test:security:db:local` (pgTAP sobre una base local de Docker construida solo con las migraciones, con puertos propios; tests en `supabase/tests/`), `pnpm run test:a11y:local` (AXE con Playwright en las rutas públicas y en las autenticadas, contra una pila local de Supabase a la que se redirigen todas las peticiones de la app; specs en `e2e/`) y `pnpm run check:bundle-secrets` tras `pnpm run build`. Las tres se ejecutan en `.github/workflows/seguridad.yml`. Ninguna se ejecuta contra el proyecto remoto compartido.
+- Comprobaciones del proyecto: `pnpm run test:security:db:local` (pgTAP sobre una base local de Docker construida solo con las migraciones, con puertos propios; tests en `supabase/tests/`), `pnpm run test:a11y:local` (AXE con Playwright en las rutas públicas y en las autenticadas, contra una pila local de Supabase a la que se redirigen todas las peticiones de la app; specs en `e2e/`) y `pnpm run check:bundle-secrets` tras `pnpm run build`. Las tres se ejecutan en `.github/workflows/seguridad.yml`, y sus jobs `rls` y `a11y` son obligatorios para fusionar en `main` (flujo en la regla 3 de «Reglas fundamentales del proyecto»). Ninguna se ejecuta contra el proyecto remoto compartido.
 - La base local de pruebas retira `pg_net`, que la imagen de Supabase trae con permisos para `anon` y que `devappsdpm-db` no tiene instalado. Por eso ninguna migración puede instalar `pg_net` o `http`: los scripts locales fallan si lo detectan, y hay que revisar sus permisos antes.
 - **Una tarea que toque backend o UI no pasa a `Hecha`** hasta que esas comprobaciones estén en verde, y su sección "Verificación" lo deja escrito (qué se ejecutó y dónde). Si el cambio añade tablas, políticas, funciones o rutas, añade también su test en el mismo cambio.
 - Una excepción a estas reglas es una nota `Excepción` en `Seguridad/` con su justificación. Sin nota, no hay excepción.
@@ -134,23 +134,32 @@ Estas reglas aplican a todo cambio, lo haga una persona o un agente, y también 
 - RxJS solo debe utilizarse cuando el problema sea realmente un flujo de eventos o una API basada en Observables. En los límites con RxJS se deben usar las utilidades oficiales de interoperabilidad, como `toSignal()` y `toObservable()`, manteniendo Signals como representación principal del estado de la aplicación.
 - Toda modificación de componentes, servicios, formularios, navegación o acceso a datos debe revisarse expresamente para asegurar que conserva el funcionamiento zoneless y actualiza la interfaz mediante Signals.
 
-### 3. Todo push debe incrementar la versión y todo deploy debe verificarse
+### 3. El código se publica por pull request y todo deploy debe verificarse
 
-- **Antes de cada `git push` se debe incrementar obligatoriamente la versión de `package.json`. No se puede hacer push si la versión no ha cambiado desde el último push.**
+Esta regla es la única fuente del flujo de publicación; las demás secciones la enlazan.
+
+| Cambio | Cómo se publica | Versión | Despliegue |
+| --- | --- | --- | --- |
+| **Código**: cualquier archivo fuera de `docs/` | Rama propia y pull request contra `main`; se fusiona solo con los jobs `rls` y `a11y` del workflow `Seguridad` en verde | Se incrementa en la propia PR | Al fusionar en `main`; se verifica en Vercel |
+| **Solo bóveda**: todos los archivos dentro de `docs/` | Push directo a `main` | No se incrementa | No hay: `vercel.json` omite el build cuando el commit no cambia nada fuera de `docs/` |
+
+- **Nunca se hace push directo a `main` de un cambio que toque código**, aunque GitHub lo permita a los administradores. Un commit que mezcle bóveda y código cuenta como código.
+- `main` exige `rls` y `a11y` en verde para fusionar. El workflow también se ejecuta en cada push, pero un push directo se despliega sin esperar a su resultado; por eso el código va siempre por PR.
+- **Cada PR de código incrementa la versión de `package.json`.** Una PR no se fusiona si su versión no supera la de `main`.
 - El incremento debe seguir Semantic Versioning y elegirse según el alcance real del cambio:
   - `patch` para correcciones, mantenimiento, refactors compatibles y cambios internos sin nuevas capacidades públicas.
   - `minor` para funcionalidades nuevas compatibles con versiones anteriores.
   - `major` para cambios incompatibles, eliminaciones o migraciones que requieran adaptación.
 - **Un incremento `major` requiere siempre autorización previa y explícita del usuario.** Antes de ejecutar el comando, el agente debe explicar qué incompatibilidades justifican el `major` y qué impacto tendrá. Una petición genérica de commit, push o despliegue no cuenta como autorización para un `major`.
 - Se debe utilizar exclusivamente `pnpm version patch|minor|major --no-git-tag-version`; siguen prohibidos `npm version` y cualquier uso de npm.
-- El cambio de versión debe incluirse en el mismo commit o conjunto de commits que se va a desplegar y verificarse antes del push.
-- Si un push anterior falló antes de llegar al remoto y no generó despliegue, no es necesario volver a incrementar la versión para reintentar exactamente el mismo conjunto de commits.
-- Cuando el usuario pida «desplegar», «hacer deploy» o una formulación equivalente, está solicitando el flujo completo de publicación: elegir y aplicar el incremento SemVer correspondiente, crear un `git commit` con los cambios previstos y ejecutar `git push` directamente al remoto y rama actuales. No se crea una rama ni una pull request salvo que el usuario lo solicite expresamente, y GitHub CLI no es un requisito cuando el remoto Git ya está configurado y autenticado.
+- El cambio de versión debe incluirse en la misma PR que se va a desplegar. Si la PR recibe más commits antes de fusionarse, no hace falta volver a incrementar la versión.
+- Cuando el usuario pida «desplegar», «hacer deploy» o una formulación equivalente para un cambio de código, está solicitando el flujo completo de publicación: aplicar el incremento SemVer correspondiente, crear los commits en una rama propia, hacer push de esa rama, abrir la PR con GitHub CLI, esperar a que `rls` y `a11y` estén en verde, fusionarla y verificar el despliegue. Si el usuario no ha autorizado fusionar, el agente se detiene con la PR abierta e informa. Si el cambio solo toca `docs/`, «publicar» significa hacer commit y push directo a `main`.
 - Cada agente o sesión solo puede incluir en su commit los archivos y cambios que haya realizado dentro de su propio alcance. La existencia de otras modificaciones sin commit en el mismo workspace no autoriza a incorporarlas: pertenecen a sus sesiones responsables y deben conservarse para commits separados.
 - Antes de crear el commit se deben preparar rutas explícitas y revisar el diff staged. No se permiten comandos de staging indiscriminado como `git add .`, `git add -A` o equivalentes en un workspace compartido. Si un mismo archivo contiene cambios mezclados de varias sesiones, se preparan únicamente los hunks propios; si no es posible atribuirlos con seguridad, se detiene el commit y se informa del conflicto.
 - El mensaje del commit debe describir de forma concreta y apropiada los cambios de esa sesión; no se utilizan mensajes genéricos que oculten o amplíen el alcance real.
-- Un `git push` correcto no completa por sí solo una petición de despliegue. Después del push se debe localizar en Vercel el deployment asociado al commit publicado y supervisarlo hasta que alcance un estado terminal.
-- El despliegue solo se considera completado correctamente cuando Vercel informa el estado `READY`. Si termina en `ERROR`, se deben inspeccionar sus detalles o logs, informar de la causa y continuar con la corrección cuando esté dentro del alcance autorizado; cada nuevo push correctivo vuelve a estar sujeto al incremento de versión. Si no existe acceso para consultar Vercel, se debe comunicar el bloqueo y no asumir que el despliegue ha terminado correctamente.
+- Fusionar una PR no completa por sí solo una petición de despliegue. Después se debe localizar en Vercel el deployment de producción asociado al commit de `main` y supervisarlo hasta que alcance un estado terminal.
+- El despliegue solo se considera completado correctamente cuando Vercel informa el estado `READY`. Si termina en `ERROR`, se deben inspeccionar sus detalles o logs, informar de la causa y continuar con la corrección cuando esté dentro del alcance autorizado; cada corrección es una PR nueva con su propio incremento de versión. Si no existe acceso para consultar Vercel, se debe comunicar el bloqueo y no asumir que el despliegue ha terminado correctamente.
+- Los cambios de base de datos o de funciones Edge en el Supabase compartido se aplican aparte y solo con autorización expresa del usuario. Se aplican antes de fusionar el frontend que los necesita, y la migración del repo debe llevar la misma versión que registra el ledger remoto.
 
 ### 4. Código en inglés y comentarios en español
 
@@ -254,7 +263,7 @@ src/app/
 ### Despliegue
 
 - Vercel es la plataforma de despliegue del frontend. `vercel.json` declara Angular, instala con `corepack pnpm install --frozen-lockfile` y construye con `corepack pnpm run build`.
-- Los pushes al repositorio enlazado disparan el despliegue desde Vercel. Antes de cualquier push se aplica obligatoriamente la regla de incremento de versión definida arriba.
+- Vercel despliega cada commit de `main` en producción y cada rama en una preview. Su `ignoreCommand` omite el build cuando el commit no cambia nada fuera de `docs/`; si la comprobación falla (por ejemplo, sin commit anterior), se construye igualmente. El flujo de publicación es el de la regla 3.
 - La configuración antigua de Railway y Nixpacks se eliminó; no debe reintroducirse salvo una decisión explícita futura.
 - Supabase continúa siendo un servicio externo a Vercel: no se despliega ni se replica como parte del frontend.
 
