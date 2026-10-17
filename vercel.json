@@ -2,5 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "angular",
   "installCommand": "corepack pnpm install --frozen-lockfile",
-  "buildCommand": "corepack pnpm run build"
+  "buildCommand": "corepack pnpm run build",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':(exclude)docs'"
 }
