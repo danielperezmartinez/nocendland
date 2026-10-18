@@ -287,6 +287,10 @@ src/app/
 - El inicio de sesión OAuth admite GitHub y Google. La URL de callback se construye con `location.origin`, de modo que el mismo código funciona en local y producción.
 - Supabase debe mantener autorizadas tanto la URL local de callback como las URLs desplegadas en Vercel. Esta allowlist es configuración externa y no debe sustituirse por URLs de producción fijadas en el código.
 - El callback intercambia el código PKCE por una sesión, vuelve a validar el usuario y solo entonces permite entrar en la aplicación.
+- El cliente configura `flowType: 'pkce'` y `detectSessionInUrl: false`; el callback es el único responsable del intercambio y espera la restauración inicial del SDK. Un código rechazado no permite reutilizar una sesión antigua para dar el flujo por válido.
+- Registro y acceso por contraseña o código, confirmación y recuperación están implementados detrás de `emailAuthEnabled`. La opción permanece desactivada tanto en producción como en el desarrollo que apunta al proyecto compartido; solo el entorno `auth-local` la activa. Véase [[Tareas/Implementar registro y autenticación por correo]].
+- La recuperación por código debe terminar en el formulario de nueva contraseña antes de entrar en la shell; el estado temporal se conserva por pestaña cuando el navegador permite `sessionStorage`. Las credenciales y códigos nunca se guardan en URLs ni en el estado de navegación. La autorización real permanece en Supabase.
+- La activación del correo productivo depende de [[Tareas/Activar correo de autenticación en producción]]. Todo MFA queda aplazado en [[Tareas/Implementar doble factor y recuperación de acceso]].
 
 ### Despliegue
 

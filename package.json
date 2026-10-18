@@ -1,6 +1,6 @@
 {
   "name": "nocendland",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": "24.x",
@@ -10,6 +10,10 @@
     "ng": "ng",
     "prepare": "git config core.hooksPath .githooks || exit 0",
     "start": "ng serve",
+    "auth:local:start": "supabase start --workdir tests/auth-local",
+    "auth:local:configure": "node scripts/configure-auth-local.mjs",
+    "auth:local:serve": "ng serve --configuration auth-local",
+    "auth:local:verify": "node scripts/verify-auth-local.mjs",
     "build": "node scripts/check-style-tokens.mjs && node scripts/check-technical-catalog.mjs && ng build --configuration=production",
     "check:styles": "node scripts/check-style-tokens.mjs",
     "check:shared-ui": "node scripts/check-shared-ui.mjs",

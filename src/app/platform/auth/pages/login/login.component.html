@@ -6,15 +6,20 @@
     <p class="login-card__intro">Accede a Nocendland para continuar registrando tus áreas, hábitos y progreso.</p>
 
     <div class="login-card__actions">
-      <button class="ui-button" type="button" (click)="auth.signInWithGithub(returnPath)">
+      <button class="ui-button" type="button" [disabled]="busy()" (click)="signIn('github')">
         <span aria-hidden="true">GH</span>
         Continuar con GitHub
       </button>
-      <button class="ui-button ui-button--quiet" type="button" (click)="auth.signInWithGoogle(returnPath)">
+      <button class="ui-button ui-button--quiet" type="button" [disabled]="busy()" (click)="signIn('google')">
         <span aria-hidden="true">G</span>
         Continuar con Google
       </button>
+      @if (auth.emailAuthEnabled) {
+        <a class="ui-button ui-button--quiet" routerLink="/auth/email" [queryParams]="{returnUrl: returnPath}">Continuar con correo</a>
+        <a routerLink="/auth/register" [queryParams]="{returnUrl: returnPath}">Crear una cuenta</a>
+      }
     </div>
+    @if (error()) { <p role="alert">{{ error() }}</p> }
 
     <p class="login-card__legal">
       Al continuar aceptas el tratamiento descrito en la <a routerLink="/privacy">política de privacidad</a>.

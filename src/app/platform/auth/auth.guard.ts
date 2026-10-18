@@ -13,6 +13,9 @@ export const authGuard: CanActivateChildFn = async (childRoute, state) => {
     // Un fallo de recuperación no debe cancelar la navegación inicial y dejar la aplicación vacía.
   }
   if (!authenticated) {
+    if (auth.emailAuthEnabled && auth.recoveryUserId()) {
+      return router.createUrlTree(['/auth/reset-password'])
+    }
     return router.createUrlTree(['/auth'], {queryParams: {returnUrl: auth.sanitizeReturnPath(state.url)}})
   }
 

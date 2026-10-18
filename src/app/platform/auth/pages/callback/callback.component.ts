@@ -17,11 +17,19 @@ export class CallbackComponent implements OnInit {
   ) {}
 
   public async ngOnInit(): Promise<void> {
-    const code = this.route.snapshot.queryParamMap.get('code')
-    if (code) await this.auth.exchangeCodeForSession(code)
-
-    const authenticated = await this.auth.isAuthenticated()
     const returnPath = this.auth.sanitizeReturnPath(this.route.snapshot.queryParamMap.get('returnUrl'))
-    await this.router.navigateByUrl(authenticated ? returnPath : '/auth')
+    try {
+      if (this.route.snapshot.queryParamMap.has('error')) throw new Error('OAuth rejected')
+      const code = this.route.snapshot.queryParamMap.get('code')
+      if (code) await this.auth.exchangeCodeForSession(code)
+      if (this.auth.emailAuthEnabled && this.auth.recoveryUserId()) {
+        await this.router.navigateByUrl('/auth/reset-password', {replaceUrl: true})
+        return
+      }
+      const authenticated = await this.auth.isAuthenticated()
+      await this.router.navigateByUrl(authenticated ? returnPath : '/auth', {replaceUrl: true})
+    } catch {
+      await this.router.navigate(['/auth'], {queryParams: {returnUrl: returnPath, error: 'callback'}, replaceUrl: true})
+    }
   }
 }

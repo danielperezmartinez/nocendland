@@ -234,6 +234,7 @@ describe('AuthService navigation and profile reuse', () => {
     expect(service.user()).toBeUndefined()
     response.resolve({error: null})
     await logout
+    expect(backend.signOut).toHaveBeenCalledWith({scope: 'local'})
   })
 
   it('unsubscribes from authentication events on destruction', () => {

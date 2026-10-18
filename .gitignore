@@ -43,6 +43,9 @@ testem.log
 .env.*
 !.env.example
 /supabase/.temp/
+/tests/auth-local/supabase/.temp/
+/tests/auth-local/supabase/.branches/
+/src/environments/environment.auth-local.ts
 *.pem
 *.key
 *.p12
@@ -58,3 +61,10 @@ Thumbs.db
 # Pruebas e2e de accesibilidad
 /test-results
 /playwright-report
+
+# Estado de interfaz de Obsidian (paneles y ficheros abiertos), propio de cada equipo
+/docs/.obsidian/workspace.json
+/docs/.obsidian/workspace-mobile.json
+
+# Adjuntos locales de agentes remotos (capturas con datos personales)
+/.codex-remote-attachments/

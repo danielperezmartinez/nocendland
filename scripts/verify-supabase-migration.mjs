@@ -154,7 +154,7 @@ try {
     await admin.from('nutrition_ingredient').delete().eq('id_user', user.id)
     await admin.from('nutrition_objetive_level').delete().eq('id_user', user.id)
     await admin.from('user').delete().eq('id', user.id)
-    await deleteVerificationUser(user.id)
+    await deleteVerificationUser(user)
   }
 }
 
@@ -211,9 +211,17 @@ async function expectNoRows(query) {
   await expectRows(query, 0)
 }
 
-async function deleteVerificationUser(userId) {
+async function deleteVerificationUser(user) {
+  const lookup = await admin.auth.admin.getUserById(user.id)
+  const expectedDisposableIdentity = user.email.startsWith('nocendland-')
+    && user.email.endsWith('@example.invalid')
+    && lookup.data.user?.email === user.email
+  if (lookup.error || !expectedDisposableIdentity) {
+    throw new Error('verification_identity_cleanup_refused')
+  }
+
   for (let attempt = 1; attempt <= 3; attempt += 1) {
-    const deletion = await admin.auth.admin.deleteUser(userId)
+    const deletion = await admin.auth.admin.deleteUser(user.id)
     if (!deletion.error) return
     await new Promise(resolve => setTimeout(resolve, 500 * attempt))
   }

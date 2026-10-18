@@ -1,0 +1,79 @@
+<main class="login-page" data-area="home">
+  <section class="login-card ui-card" aria-labelledby="auth-title" [attr.aria-busy]="busy()">
+    <div class="login-card__mark" aria-hidden="true">N</div>
+    <p class="login-card__eyebrow">Tu atlas personal</p>
+    <h1 id="auth-title">{{ title }}</h1>
+    <p class="login-card__intro">{{ intro }}</p>
+
+    <form class="email-form" (submit)="submit($event)">
+      @if (mode !== 'reset-password') {
+        <label class="ui-field" for="email">
+          <span>Correo electrónico</span>
+          <input #emailInput class="ui-input" id="email" name="email" type="email" autocomplete="email"
+                 required maxlength="254" [value]="email()"
+                 (input)="email.set(emailInput.value)" [disabled]="busy()">
+        </label>
+      }
+      @if (needsPassword()) {
+        <label class="ui-field" for="password">
+          <span>{{ mode === 'reset-password' ? 'Nueva contraseña' : 'Contraseña' }}</span>
+          <input #passwordInput class="ui-input" id="password" name="password" type="password" required
+                 [attr.minlength]="mode === 'email' ? null : 8" maxlength="72"
+                 [attr.autocomplete]="mode === 'email' ? 'current-password' : 'new-password'"
+                 [value]="password()" (input)="password.set(passwordInput.value)" [disabled]="busy()">
+          @if (mode !== 'email') { <small>Al menos 8 caracteres. Puedes usar una frase larga.</small> }
+        </label>
+      }
+      @if (needsConfirmation()) {
+        <label class="ui-field" for="confirmation">
+          <span>Repite la contraseña</span>
+          <input #confirmationInput class="ui-input" id="confirmation" name="confirmation" type="password"
+                 autocomplete="new-password" required maxlength="72" [value]="confirmation()"
+                 (input)="confirmation.set(confirmationInput.value)" [disabled]="busy()">
+        </label>
+      }
+      @if (mode === 'verify') {
+        <label class="ui-field" for="token">
+          <span>Código de verificación</span>
+          <input #tokenInput class="ui-input email-form__code" id="token" name="token" type="text"
+                 inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"
+                 required [value]="token()" (input)="token.set(tokenInput.value)" [disabled]="busy()">
+        </label>
+      }
+      @if (error()) { <p class="email-form__error" role="alert">{{ error() }}</p> }
+      @if (notice()) { <p role="status">{{ notice() }}</p> }
+      @if (confirmationNeeded()) {
+        <button class="ui-button ui-button--quiet" type="button" (click)="sendConfirmation()" [disabled]="busy() || remaining() > 0">Reenviar confirmación</button>
+      }
+      <button class="ui-button" type="submit" [disabled]="busy()">
+        @if (busy()) { Un momento… }
+        @else if (mode === 'verify') { Verificar código }
+        @else if (mode === 'reset-password') { Guardar contraseña }
+        @else if (mode === 'recover' || useCode()) { Enviar código }
+        @else if (mode === 'register') { Crear cuenta }
+        @else { Entrar }
+      </button>
+      @if (mode === 'email' || mode === 'register') {
+        <button class="ui-button ui-button--quiet" type="button" (click)="toggleMethod()" [disabled]="busy()">
+          {{ useCode() ? 'Usar contraseña' : 'Usar un código por correo' }}
+        </button>
+      }
+      @if (mode === 'verify') {
+        <button class="ui-button ui-button--quiet" type="button" (click)="resend()" [disabled]="busy() || remaining() > 0">
+          {{ remaining() ? 'Reenviar en ' + remaining() + ' s' : 'Reenviar código' }}
+        </button>
+      }
+    </form>
+    <nav class="email-form__links" aria-label="Opciones de acceso">
+      @if (mode === 'email') {
+        <a routerLink="/auth/recover" [queryParams]="{returnUrl: returnPath}">He olvidado mi contraseña</a>
+        <a routerLink="/auth/register" [queryParams]="{returnUrl: returnPath}">Crear una cuenta</a>
+      }
+      @if (mode === 'reset-password') {
+        <button class="ui-button ui-button--quiet" type="button" (click)="cancelRecovery()" [disabled]="busy()">Cancelar y cerrar sesión</button>
+      } @else {
+        <a routerLink="/auth" [queryParams]="{returnUrl: returnPath}">Volver al inicio de sesión</a>
+      }
+    </nav>
+  </section>
+</main>
