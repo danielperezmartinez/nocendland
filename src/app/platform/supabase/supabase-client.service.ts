@@ -7,6 +7,8 @@ import {Database} from './database.types';
 export class SupabaseClientService {
   readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey, {
     db: {schema: 'nocendland'},
+    // El callback realiza el intercambio una sola vez, después de INITIAL_SESSION.
+    auth: {flowType: 'pkce', detectSessionInUrl: false},
   })
   readonly storageBucket = 'nocendland'
 }

@@ -1,0 +1,66 @@
+# Entorno desechable dedicado a Auth; nunca vincularlo a un proyecto remoto.
+project_id = "nocendland-auth-local"
+
+[api]
+enabled = true
+port = 55431
+schemas = ["public", "nocendland"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+port = 55432
+shadow_port = 55430
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = false
+
+[local_smtp]
+enabled = true
+port = 55434
+
+[storage]
+enabled = false
+
+[realtime]
+enabled = false
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "http://localhost:4200"
+additional_redirect_urls = ["http://localhost:4200/auth/callback*", "http://127.0.0.1:4200/auth/callback*"]
+enable_signup = true
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "60s"
+otp_length = 6
+otp_expiry = 600
+
+[auth.rate_limit]
+email_sent = 100
+
+[auth.email.template.confirmation]
+subject = "Confirma tu correo — Nocendland local"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.magic_link]
+subject = "Tu código — Nocendland local"
+content_path = "./supabase/templates/code.html"
+
+[auth.email.template.recovery]
+subject = "Recupera tu acceso — Nocendland local"
+content_path = "./supabase/templates/recovery.html"
+

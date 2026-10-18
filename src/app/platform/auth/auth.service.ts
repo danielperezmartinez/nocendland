@@ -3,12 +3,17 @@ import {Router} from '@angular/router';
 import {OAuthResponse, Subscription, User} from '@supabase/supabase-js';
 import {SupabaseClientService} from '@platform/supabase/supabase-client.service';
 import {Database} from '@platform/supabase/database.types';
+import {environment} from '@environments/environment';
 
 export type AuthProvider = 'github' | 'google'
 export type AppUser = Database['nocendland']['Tables']['user']['Row']
 
 @Injectable({providedIn: 'root'})
 export class AuthService implements OnDestroy {
+  private readonly recoveryStorageKey = `nocendland-recovery:${environment.supabaseUrl}`
+  private readonly recoveryState = signal<string | null>(this.readRecoveryUser())
+  readonly recoveryUserId = this.recoveryState.asReadonly()
+  get emailAuthEnabled(): boolean { return environment.emailAuthEnabled }
   private readonly userState = signal<AppUser | undefined>(undefined)
   private readonly authSubscription: Subscription
   private initialSessionLoaded = false
@@ -30,6 +35,11 @@ export class AuthService implements OnDestroy {
   ) {
     this.authSubscription = this.supabase.client.auth.onAuthStateChange((event, session) => {
       const nextUserId = session?.user.id
+      if (event === 'PASSWORD_RECOVERY' && nextUserId) this.setRecoveryUser(nextUserId)
+      if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !nextUserId)
+        || (nextUserId && this.recoveryState() !== nextUserId)) {
+        this.setRecoveryUser(null)
+      }
       // Este callback es síncrono: no llama a Supabase mientras Auth mantiene su bloqueo.
       if (event === 'SIGNED_OUT' || event === 'USER_UPDATED'
         || (this.initialSessionLoaded && event === 'SIGNED_IN' && nextUserId !== this.sessionUserId)
@@ -51,6 +61,9 @@ export class AuthService implements OnDestroy {
   }
 
   public isAuthenticated(navigationId?: number): Promise<boolean> {
+    if (this.recoveryState()) {
+      return this.initialSessionReady.then(() => this.recoveryState() ? false : this.isAuthenticated(navigationId))
+    }
     if (this.signingOut) return Promise.resolve(false)
     if (navigationId !== undefined && this.navigationCheck?.id === navigationId) {
       return this.navigationCheck.result
@@ -100,8 +113,93 @@ export class AuthService implements OnDestroy {
     }
   }
 
-  public exchangeCodeForSession(code: string) {
-    return this.supabase.client.auth.exchangeCodeForSession(code)
+  public async exchangeCodeForSession(code: string): Promise<void> {
+    await this.initialSessionReady
+    const {error} = await this.supabase.client.auth.exchangeCodeForSession(code)
+    if (error) throw error
+  }
+
+  public async signInWithPassword(email: string, password: string): Promise<void> {
+    this.requireEmailAuth()
+    const {error} = await this.supabase.client.auth.signInWithPassword({email: email.trim(), password})
+    if (error) throw error
+  }
+
+  public async signUpWithPassword(email: string, password: string): Promise<void> {
+    this.requireEmailAuth()
+    const {error} = await this.supabase.client.auth.signUp({email: email.trim(), password})
+    if (error) throw error
+  }
+
+  public async sendEmailCode(email: string, createAccount: boolean): Promise<void> {
+    this.requireEmailAuth()
+    const {error} = await this.supabase.client.auth.signInWithOtp({
+      email: email.trim(), options: {shouldCreateUser: createAccount},
+    })
+    if (error) throw error
+  }
+
+  public async resendConfirmation(email: string): Promise<void> {
+    this.requireEmailAuth()
+    const {error} = await this.supabase.client.auth.resend({type: 'signup', email: email.trim()})
+    if (error) throw error
+  }
+
+  public async verifyEmailCode(email: string, token: string, recovery = false): Promise<void> {
+    this.requireEmailAuth()
+    const {data, error} = await this.supabase.client.auth.verifyOtp({
+      email: email.trim(), token: token.trim(), type: recovery ? 'recovery' : 'email',
+    })
+    if (error) throw error
+    if (!data.session || !data.user) throw new Error('No se pudo verificar la sesión. Solicita otro código.')
+    if (recovery) this.setRecoveryUser(data.user.id)
+  }
+
+  public async requestPasswordReset(email: string): Promise<void> {
+    this.requireEmailAuth()
+    const {error} = await this.supabase.client.auth.resetPasswordForEmail(email.trim())
+    if (error) throw error
+  }
+
+  public async resetPassword(password: string): Promise<void> {
+    this.requireEmailAuth()
+    const recoveryUserId = this.recoveryState()
+    const sessionVersion = this.sessionVersion
+    const {data, error} = await this.supabase.client.auth.getUser()
+    if (this.sessionVersion !== sessionVersion || this.recoveryState() !== recoveryUserId) {
+      throw new Error('La sesión ha cambiado. Vuelve a verificar tu acceso.')
+    }
+    if (error || !recoveryUserId || data.user?.id !== recoveryUserId) {
+      this.setRecoveryUser(null)
+      throw new Error('Verifica el código de recuperación antes de cambiar la contraseña.')
+    }
+    const {error: updateError} = await this.supabase.client.auth.updateUser({password})
+    if (updateError) throw updateError
+    this.setRecoveryUser(null)
+  }
+
+  public async hasPasswordRecovery(): Promise<boolean> {
+    await this.initialSessionReady
+    return this.emailAuthEnabled && !!this.recoveryState()
+  }
+
+  private requireEmailAuth(): void {
+    if (!this.emailAuthEnabled) throw new Error('El acceso por correo todavía no está disponible.')
+  }
+
+  private setRecoveryUser(userId: string | null): void {
+    this.recoveryState.set(userId)
+    try {
+      if (userId) sessionStorage.setItem(this.recoveryStorageKey, userId)
+      else sessionStorage.removeItem(this.recoveryStorageKey)
+    } catch {
+      // Si el navegador bloquea almacenamiento, el flujo sigue disponible en memoria.
+    }
+  }
+
+  private readRecoveryUser(): string | null {
+    try { return sessionStorage.getItem(this.recoveryStorageKey) }
+    catch { return null }
   }
 
   public signInWithGithub(returnPath = '/'): Promise<OAuthResponse> {
@@ -116,7 +214,8 @@ export class AuthService implements OnDestroy {
     this.signingOut = true
     this.invalidateSession()
     try {
-      const {error} = await this.supabase.client.auth.signOut()
+      // Auth se comparte con otras aplicaciones: cerrar Nocendland no debe revocar sus sesiones.
+      const {error} = await this.supabase.client.auth.signOut({scope: 'local'})
       if (error) throw error
       await this.router.navigateByUrl('/auth')
     } finally {

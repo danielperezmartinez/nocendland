@@ -31,7 +31,7 @@ describe('AuthService persisted session restoration with the Supabase SDK', () =
     const client = createClient<Database>('https://auth-restoration.example', 'test-public-key', {
       db: {schema: 'nocendland'},
       auth: {
-        storageKey, detectSessionInUrl: false,
+        storageKey, flowType: 'pkce', detectSessionInUrl: false,
         storage: {
           getItem: (key: string) => saved.get(key) ?? null,
           setItem: (key: string, value: string) => { saved.set(key, value) },
