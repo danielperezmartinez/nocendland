@@ -1,6 +1,6 @@
 ---
 Nombre: Revisar bajas en Supabase compartido
-Estado: En curso
+Estado: Hecha
 Resumen: La auditoría confirmó que Nocendland no tiene flujo de baja, que la identidad Auth continúa compartida y que el cierre de sesión global podía afectar a otras aplicaciones; el logout queda limitado al cliente local y el borrado administrativo del verificador solo admite sus identidades desechables.
 Decisiones: Nocendland no eliminará auth.users para una futura baja; no se ofrecerá una eliminación parcial del perfil porque dejaría datos o archivos sin limpiar; el ciclo completo requerirá estado persistente privado, bloqueo de acceso, limpieza reintentable de Storage y confirmación explícita del alcance antes de añadir una interfaz de baja.
 Bloqueada: []
@@ -75,3 +75,4 @@ No se ha creado una baja parcial durante esta revisión: sin todos esos elemento
 ## Publicación
 
 - 2026-10-18: el trabajo seguía sin commitear en el workspace local. Se publica sobre `main` actualizado en la rama `feat/email-auth` (PR única con [[Revisar bajas en Supabase compartido]] y [[Implementar registro y autenticación por correo]], versión 0.10.0). La tarea pasa a `Hecha` cuando la PR esté integrada y el despliegue verificado, según [[README#Publicación]].
+- Verificación de la publicación: PR #5 integrada con squash en `main` (commit `e8592b1`), checks en verde y despliegue de producción en Vercel `READY` el 2026-10-18.

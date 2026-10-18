@@ -1,6 +1,6 @@
 ---
 Nombre: Implementar registro y autenticación por correo
-Estado: En curso
+Estado: Hecha
 Resumen: Registro, contraseña, código, confirmación y recuperación implementados; 189 pruebas y build correctos, flujos verificados contra Supabase local y correo productivo pendiente de SMTP.
 Decisiones: Mantener Google y GitHub; probar correo contra Supabase local aislado; configurar PKCE explícitamente; aplazar MFA y no modificar Auth global del proyecto compartido.
 Bloqueada: []
@@ -56,3 +56,4 @@ pnpm run auth:local:serve
 ## Publicación
 
 - 2026-10-18: el trabajo seguía sin commitear en el workspace local. Se publica sobre `main` actualizado en la rama `feat/email-auth` (PR única con [[Revisar bajas en Supabase compartido]] y [[Implementar registro y autenticación por correo]], versión 0.10.0). La tarea pasa a `Hecha` cuando la PR esté integrada y el despliegue verificado, según [[README#Publicación]].
+- Verificación de la publicación: PR #5 integrada con squash en `main` (commit `e8592b1`), checks en verde y despliegue de producción en Vercel `READY` el 2026-10-18.
