@@ -5,7 +5,7 @@ Resumen: Registro, contraseña, código, confirmación y recuperación implement
 Decisiones: Mantener Google y GitHub; probar correo contra Supabase local aislado; configurar PKCE explícitamente; aplazar MFA y no modificar Auth global del proyecto compartido.
 Bloqueada: []
 Fecha de creación: 2026-09-30
-Última modificación: 2026-10-18
+Última modificación: 2026-10-19
 ---
 
 # Implementar registro y autenticación por correo
@@ -24,7 +24,7 @@ La activación externa se sigue en [[Activar correo de autenticación en producc
 
 Requiere Docker disponible. No se vincula a Supabase remoto ni ejecuta las migraciones productivas.
 
-```powershell
+```sh
 pnpm run auth:local:start
 pnpm run auth:local:configure
 pnpm run auth:local:verify
