@@ -29,8 +29,8 @@ verifyDepsBeforeRun: error
 
 # Angular 22 admite Node ^24.15.0. pnpm fija la versión exacta para mantener
 # el mismo runtime en desarrollo, CI y despliegue.
-useNodeVersion: 24.19.0
-nodeVersion: 24.19.0
+useNodeVersion: 24.22.1
+nodeVersion: 24.22.1
 engineStrict: true
 
 packageManagerStrict: true
