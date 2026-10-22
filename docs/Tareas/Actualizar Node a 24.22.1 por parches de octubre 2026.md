@@ -1,6 +1,6 @@
 ---
 Nombre: Actualizar Node a 24.22.1 por parches de octubre 2026
-Estado: En curso
+Estado: Hecha
 Resumen: Node pasa de 24.19.0 a 24.22.1, que corrige los fallos de seguridad del 21 de octubre de 2026, en pnpm, en el CI y en engines. Producción no estaba afectada porque es estática; el build y el CI sí usaban la versión vulnerable.
 Decisiones: Se aplica la política común de versión de Node de las webs del usuario, decidida el 2026-10-23: versión exacta en setup-node, el mismo número en useNodeVersion y nodeVersion, y engines.node ">=24.22.1 <25". La CLI de Supabase (binario de Bun con su propio almacén de raíces) no se actualiza hasta que haya una versión corregida.
 Bloqueada: []
@@ -33,4 +33,5 @@ La aplicación publicada es una SPA estática, sin SSR ni funciones de Vercel, a
 - `pnpm exec ng test --watch=false`: 57 archivos y 204 pruebas correctas.
 - `pnpm run build`: correcto, con los mismos avisos de presupuesto de siempre. `pnpm run check:bundle-secrets`: sin secretos.
 - `pnpm run test:security:db:local`: 3 archivos y 133 pruebas correctas.
-- Falta anotar: la PR, los checks del CI y la versión de Node en el log del build de producción de Vercel.
+- PR #6, integrada con squash como `b5b5c84`. Todos los checks en verde (`cambios`, `verificar`, `rls`, `a11y`, `fugas`), y `setup-node` registra `node: v24.22.1` en los tres jobs.
+- Vercel: el despliegue de producción del commit `b5b5c84` llegó a `READY` y construyó la versión 0.10.1. El log del build no imprime la versión de Node; la usada la marca `useNodeVersion: 24.22.1` de pnpm.
